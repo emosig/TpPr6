@@ -1,14 +1,13 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.TreeMap;
 
 import es.ucm.fdi.ini.IniSection;
 
 public class Junction extends SimObj{
 	private class RoadEnd{
-		private ArrayDeque<Vehicle> queue;
+		private ArrayDeque<Vehicle> vqueue;
 		private Boolean TrfLight;
 		
 		public Boolean green() {
@@ -21,15 +20,27 @@ public class Junction extends SimObj{
 		}
 		
 		public void arrive(Vehicle v) {
-			queue.offer(v);
+			vqueue.offer(v);
 		}
 		
 		public Vehicle leave() {
-			return queue.poll();
+			return vqueue.poll();
+		}
+		
+		public String vqueueToString() {
+			if(vqueue.isEmpty()) return "[]";
+			StringBuilder sb = new StringBuilder();
+			sb.append('[');
+			for(Vehicle v: vqueue) {
+				sb.append(v.getId() + ",");
+			}
+			sb.setLength(sb.length() - 1); //eliminar ultima coma
+			sb.append(']');
+			return sb.toString();
 		}
 		
 		public Boolean isEmpty() {
-			return queue.isEmpty();
+			return vqueue.isEmpty();
 		}
 	}
 	private TreeMap<String, RoadEnd> incomingRoad;
@@ -68,7 +79,19 @@ public class Junction extends SimObj{
 		IniSection ini = new IniSection("junction_report");
 		ini.setValue("id", getId());
 		//ini.setValue("time", value); ??
-		//ini.setValue("queues", vehiculos); ??
+		
+		if(!incomingRoad.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			for(String id : incomingRoad.keySet()) { //recorrer el treemap
+				String color;
+				if(id == greenId) color = "green";
+				else color  = "red";
+				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "), ");
+			}
+			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
+			ini.setValue("state", String.join(", ", sb));
+		}
+		
 		return ini.toString();
 	}
 }

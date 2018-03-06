@@ -1,23 +1,34 @@
 package es.ucm.fdi.events;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import es.ucm.fdi.ini.IniSection;
+import es.ucm.sim.Simulator;
 
 public class NewJunctionE extends NewObjE {
-	
-	public NewJunctionE() {
-		super(-1, "new_junction");
+	private static final String NAME = "new_junction";
+	private class NewJunctionBuilder implements EventBuilder{
+		public Event parse(IniSection s) {
+			if(!s.getTag().equals(NAME)) return null;
+			int arg1 = Integer.parseInt(s.getValue("time"));
+			String arg2 = s.getValue("id");
+			return new NewJunctionE(arg1, arg2);
+		}
+
+		@Override
+		public boolean isvalid(String id) {
+			// TODO Auto-generated method stub
+			return false;
+		}
+	}
+	public NewJunctionE(int time, String id) {
+		super(time, NAME, id);
 	}
 
 	@Override
-	public void ejecuta() {
+	public void ejecuta(Simulator s) {
 		// TODO Auto-generated method stub
 		
 	}
-
-	@Override
-	public Event read(IniSection is) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 }

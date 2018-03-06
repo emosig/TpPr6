@@ -1,14 +1,17 @@
 package es.ucm.fdi.events;
 
 import es.ucm.fdi.ini.IniSection;
+import es.ucm.sim.Simulator;
 
 public abstract class Event {
 	protected int time;
 	protected final String name;
+	protected final String id;
 	
-	public Event(int time, String name) {
+	public Event(int time, String name, String id) {
 		this.time = time;
 		this.name = name;
+		this.id = id;
 	}
 	
 	public String getName() {
@@ -19,7 +22,5 @@ public abstract class Event {
 		return time;
 	}
 	
-	public abstract Event read(IniSection is);
-	
-	public abstract void ejecuta();
+	public abstract void ejecuta(Simulator s);
 }

@@ -1,6 +1,8 @@
 package es.ucm.sim.obj;
 
-import java.util.TreeSet;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.fdi.util.MultiTreeMap;
@@ -52,7 +54,17 @@ public class Road extends SimObj{
 		IniSection ini = new IniSection("road_report");
 		ini.setValue("id", getId());
 		//ini.setValue("time", value); ??
-		ini.setValue("state", vehiculos); //2 valores, no tengo claro como se imprime vehiculos
+		
+		if(!vehiculos.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			for(Vehicle v : vehiculos.innerValues()) { //recorrer el multitreemap
+				sb.append("(" + v.getLoc() + "," + v.getId() +"), ");
+			}
+			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
+			ini.setValue("state", String.join(", ", sb));
+		}
+		
+		
 		return ini.toString();
 	}
 

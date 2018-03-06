@@ -15,5 +15,11 @@ public abstract class SimObj {
 		return id;
 	}
 	
+	public abstract void avanza();
 	public abstract String generaInforme();
+	
+	public boolean equals(SimObj that) {
+		return id.equals(that.getId());
+	}
+	//public algo hashcode???
 }
