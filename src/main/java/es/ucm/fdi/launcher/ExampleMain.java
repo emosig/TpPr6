@@ -15,6 +15,7 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import es.ucm.fdi.ini.Ini;
+import es.ucm.sim.Simulator;
 
 public class ExampleMain {
 
@@ -109,23 +110,28 @@ public class ExampleMain {
 	 * 
 	 * @throws IOException
 	 */
-	private static void test(String path) throws IOException {
+	public static void test(String path) throws IOException {
 
 		File dir = new File(path);
 
 		if ( !dir.exists() ) {
 			throw new FileNotFoundException(path);
 		}
-		
-		File[] files = dir.listFiles(new FilenameFilter() {
+		File[] files = dir.listFiles(
+				/*Me hubiese gustado que fuese de otra forma, pero 
+				 * lo que tuvimos FilenameFilter y yo nunca funcionó
+				 * 
+				new FilenameFilter() {
 			@Override
 			public boolean accept(File dir, String name) {
 				return name.endsWith(".ini");
 			}
-		});
+		}*/);
 
 		for (File file : files) {
-			test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout",100);
+			//mi código
+			if(file.getName().endsWith(".ini"))
+				test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout",10);
 		}
 
 	}
@@ -149,6 +155,11 @@ public class ExampleMain {
 		// TODO
 		// Add your code here. Note that the input argument where parsed and stored into
 		// corresponding fields.
+		Simulator s = new Simulator();
+		
+		//a ver cómo pollas leo aquí
+		
+		
 	}
 
 	private static void start(String[] args) throws IOException {
@@ -168,11 +179,14 @@ public class ExampleMain {
 		//
 
 		// Call test in order to test the simulator on all examples in a directory.
-		//
-	    //	test("resources/examples/events/basic");
+		// Por qué pollas no funcionas
+	    ///test("resources/examples/basic");
+		test("src/main/resources/examples/basic");
+		//test("D:\\EclipseJava\\Programas\\practicas\\p4\\src\\resources\\examples\\basic");
 
 		// Call start to start the simulator from command line, etc.
-		start(args);
+		//
+		//start(args);
 
 	}
 

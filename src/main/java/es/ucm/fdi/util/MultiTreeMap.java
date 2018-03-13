@@ -17,7 +17,6 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
     public MultiTreeMap(Comparator<K> comparator) {
         super(comparator);
     }
-
     /**
      * Adds a value at the end of the list of values for the specified key.
      * @param key to add the value under
@@ -29,7 +28,6 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
         }
         get(key).add(value);
     }
-
     /**
      * Removes the first occurrence of a value from the list found at
      * a given key. Efficiency is O(size-of-that-list)
@@ -42,9 +40,13 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
         if ( ! containsKey(key)) {
             return false;
         }
-        return get(key).remove(value);
+        ArrayList<V> bucket = get(key);
+        boolean removed = bucket.remove(value);
+        if (bucket.isEmpty()) {
+            remove(key);
+        }
+        return removed;
     }
-
     /**
      * Returns the total number of values stored in this multimap
      */

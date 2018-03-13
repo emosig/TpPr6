@@ -1,6 +1,7 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayDeque;
+import java.util.Map;
 import java.util.TreeMap;
 
 import es.ucm.fdi.ini.IniSection;
@@ -9,6 +10,11 @@ public class Junction extends SimObj{
 	private class RoadEnd{
 		private ArrayDeque<Vehicle> vqueue;
 		private Boolean TrfLight;
+		
+		public RoadEnd() {
+			vqueue = new ArrayDeque<>();
+			TrfLight = false;
+		}
 		
 		public Boolean green() {
 			return TrfLight;
@@ -48,6 +54,7 @@ public class Junction extends SimObj{
 
 	public Junction(String id) {
 		super(id);
+		incomingRoad = new TreeMap<>();
 	}
 	
 	public void entraVehiculo(Vehicle v) { //getroad devuelve el id de la carretera
@@ -56,6 +63,10 @@ public class Junction extends SimObj{
 	
 	public Vehicle saleVehiculo(String idroad) {
 		return incomingRoad.get(idroad).leave();
+	}
+	
+	public void addRoad(Road r) {	//Cuando se crea una carretera que tiene este cruce como final
+		incomingRoad.put(r.getId(), new RoadEnd());
 	}
 	
 	public void avanza() {
@@ -75,7 +86,7 @@ public class Junction extends SimObj{
 		}
 	}
 	
-	public String generaInforme() {
+	/*public String generaInforme() {
 		IniSection ini = new IniSection("junction_report");
 		ini.setValue("id", getId());
 		//ini.setValue("time", value); ??
@@ -91,7 +102,26 @@ public class Junction extends SimObj{
 			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
 			ini.setValue("state", String.join(", ", sb));
 		}
-		
 		return ini.toString();
+	}*/
+
+	@Override
+	protected void fillReportDetails(Map<String, String> out) {
+		if(!incomingRoad.isEmpty()) {
+			StringBuilder sb = new StringBuilder();
+			for(String id : incomingRoad.keySet()) { //recorrer el treemap
+				String color;
+				if(id == greenId) color = "green";
+				else color  = "red";
+				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "), ");
+			}
+			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
+			out.put("queues", String.join(", ", sb));
+		}
+	}
+
+	@Override
+	protected String getReportHeader() {
+		return "junction_report";
 	}
 }

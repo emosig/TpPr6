@@ -5,6 +5,10 @@ import java.util.Arrays;
 
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
+import es.ucm.sim.obj.Junction;
+import es.ucm.sim.obj.Road;
+import es.ucm.sim.obj.SimObj;
+import es.ucm.sim.obj.Vehicle;
 
 public class NewJunctionE extends NewObjE {
 	private static final String NAME = "new_junction";
@@ -15,20 +19,13 @@ public class NewJunctionE extends NewObjE {
 			String arg2 = s.getValue("id");
 			return new NewJunctionE(arg1, arg2);
 		}
-
-		@Override
-		public boolean isvalid(String id) {
-			// TODO Auto-generated method stub
-			return false;
-		}
 	}
 	public NewJunctionE(int time, String id) {
 		super(time, NAME, id);
 	}
 
 	@Override
-	public void ejecuta(Simulator s) {
-		// TODO Auto-generated method stub
-		
+	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) {
+		js.add(new Junction(id));
 	}
 }
