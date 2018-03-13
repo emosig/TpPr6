@@ -1,0 +1,21 @@
+package es.ucm.fdi.events;
+
+import java.util.ArrayList;
+
+import es.ucm.fdi.exceptions.MissingObjectExc;
+import es.ucm.sim.Simulator;
+import es.ucm.sim.obj.Bike;
+import es.ucm.sim.obj.Junction;
+import es.ucm.sim.obj.Road;
+import es.ucm.sim.obj.Vehicle;
+
+public class NewBikeE extends NewVehicleE{
+
+	public NewBikeE(int time, int maxV, ArrayList<String> itinerary, String id) {
+		super(time, maxV, itinerary, id);
+	}
+	
+	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
+		vs.add(new Bike(maxV, super.createIt(s), id));
+	}
+}
