@@ -8,10 +8,8 @@ import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
 import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
-import es.ucm.sim.obj.SimObj;
 import es.ucm.sim.obj.Vehicle;
 
-//este evento no tiene id
 public class MakeVehicleFaultyE extends Event{
 	private int duration;
 	private ArrayList<String> vehicles;

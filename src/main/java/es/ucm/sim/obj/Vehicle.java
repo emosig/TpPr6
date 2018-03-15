@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Map;
 
 import es.ucm.fdi.exceptions.IdException;
-import es.ucm.fdi.ini.IniSection;
 
 public class Vehicle extends SimObj{
 	private int localizacion;
@@ -75,11 +74,7 @@ public class Vehicle extends SimObj{
 			localizacion += velActual;
 			if(itinerario.get(posItinerario).getLong() <= localizacion) {
 				localizacion = itinerario.get(posItinerario).getLong(); //localizacion al final de la carretera
-				/*if(itinerario.get(posItinerario).getFinalJ().getGreenId().equals(itinerario.get(posItinerario).getId())
-						&& itinerario.get(posItinerario).getFinalJ().isEmpty()) 
-					//esto comprueba si el cruce al que va a ir está en verde para la carretera en cuestión y si hay algún coche en el cruce
-				 */
-					queue.add(this); //se apunta en la cola para salir de la caretera
+				queue.add(this); //se apunta en la cola para salir de la caretera
 				itinerario.get(posItinerario).getFinalJ().entraVehiculo(this); //entra en cruce
 				velActual = 0;
 			}

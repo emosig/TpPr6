@@ -1,11 +1,12 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
 import es.ucm.fdi.exceptions.IdException;
-import es.ucm.fdi.ini.IniSection;
 
 public class Junction extends SimObj{
 	private static class RoadEnd{
@@ -21,6 +22,10 @@ public class Junction extends SimObj{
 			return TrfLight;
 		}
 		
+		public ArrayDeque<Vehicle> getQueue(){
+			return vqueue;
+		}
+		
 		public void changeTrfLight() {
 			if(TrfLight) TrfLight = false;
 			else TrfLight = true;
@@ -31,7 +36,9 @@ public class Junction extends SimObj{
 		}
 		
 		public Vehicle leave() {
-			return vqueue.poll();
+			Vehicle out = vqueue.poll();
+			out.getActualRoad().saleVehiculo(out);
+			return out;
 		}
 		
 		public String vqueueToString() {
@@ -53,6 +60,11 @@ public class Junction extends SimObj{
 	private TreeMap<String, RoadEnd> incomingRoad;
 	private String greenId; //id de la carretera con semáforo verde
 	
+	public Junction(String id) {
+		super(id);
+		incomingRoad = new TreeMap<>();
+	}
+	
 	public String getGreenId() {
 		return greenId;
 	}
@@ -61,12 +73,16 @@ public class Junction extends SimObj{
 		return incomingRoad.isEmpty();
 	}
 	
-	public Junction(String id) {
-		super(id);
-		incomingRoad = new TreeMap<>();
+	public List<Vehicle> getIncomingV(){
+		List<Vehicle> inc = new ArrayList<>();
+		for(RoadEnd r: incomingRoad.values())
+			for(Vehicle v: r.getQueue())
+				inc.add(v);
+		return inc;
 	}
 	
 	public void entraVehiculo(Vehicle v) { //getroad devuelve el id de la carretera
+		if(getIncomingV().contains(v)) return;
 		incomingRoad.get(v.getRoad()).arrive(v);
 	}
 	
@@ -82,8 +98,8 @@ public class Junction extends SimObj{
 		if(!incomingRoad.isEmpty()) {
 			//caso inicial
 			if(greenId == null) {	
-				incomingRoad.firstEntry().getValue().changeTrfLight();
-				greenId = incomingRoad.firstKey();
+				incomingRoad.lastEntry().getValue().changeTrfLight();
+				greenId = incomingRoad.lastKey();
 			}
 			//A partir de aquí greenId está forzosamente definido
 			if(!incomingRoad.get(greenId).isEmpty())
@@ -109,9 +125,9 @@ public class Junction extends SimObj{
 				String color;
 				if(id == greenId) color = "green";
 				else color  = "red";
-				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "), ");
+				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "),");
 			}
-			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
+			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("queues", String.join(", ", sb));
 		}
 		else out.put("queues", "");

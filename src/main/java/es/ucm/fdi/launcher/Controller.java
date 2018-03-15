@@ -38,7 +38,7 @@ public class Controller {
 				 Event evt = eb.parse(is);
 				 if(evt != null) 
 					 //si no coincide con ningún nombre, no se inserta en ningún sitio y a correr
-					 sim.insertaEvento(evt); //esto es un booleano
+					 sim.insertaEvento(evt);
 			 }
 	}
 	/*

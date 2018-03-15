@@ -12,6 +12,8 @@ public class Road extends SimObj{
 	protected MultiTreeMap<Integer, Vehicle> vehiculos;
 	protected int velocidadMax;
 	protected int velocidadBase;
+	//cola auxiliar para sacar coches de la carretera sin romper el iterador de multitreemap
+	protected List<Vehicle> abandonQueue = new ArrayList<>();
 	private int longitud;
 	private Junction iniJ, finalJ;
 	private int factorReducc(Vehicle v) {
@@ -75,15 +77,14 @@ public class Road extends SimObj{
 	}
 	
 	public void avVehicles() {
-		//necesito emplear una cola auxiliar para sacar coches de la carretera sin romper el iterador de multitreemap
-		List<Vehicle> abandonQueue = new ArrayList<>();
 		for(Vehicle v: vehiculos.innerValues()) {
 			if(v.getTAveria() == 0) 
 				v.setVelocidadActual(velocidadBase/factorReducc(v));
 			v.avanza(abandonQueue);
 		}
-		for(Vehicle gone: abandonQueue) //ahora que no estoy iterando saco los vehiculos de la carretera
-			saleVehiculo(gone);
+		for(Vehicle gone: abandonQueue)
+			if(gone.getLlegado())
+				saleVehiculo(gone);
 	}
 	
 	public void avanza() { //partirla en funciones más pequeñas facilita especificacion clases hijas

@@ -31,6 +31,8 @@ public abstract class Event {
 	public int getTime() {
 		return time;
 	}
-	
+	/*
+	 * Los parámetros son listas de objetos a añadir
+	 */
 	public abstract void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException;
 }

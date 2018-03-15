@@ -23,7 +23,7 @@ public class NewRoadE extends NewObjE{
 			int arg5 = Integer.parseInt(s.getValue("length"));
 			String arg6 = s.getValue("id");
 			
-			if(s.getKeys().size() == 6) //carretera simle
+			if(s.getKeys().size() == 6) //carretera simple
 				return new NewRoadE(arg1, arg2, arg3, arg4, arg5, arg6);
 			else if(s.getKeys().size() == 7) { //camino
 				if(!s.getValue("type").equals("dirt")) return null;
@@ -43,18 +43,10 @@ public class NewRoadE extends NewObjE{
 		this.vMax = vMax;
 		this.length = length;
 	}
-
+	/*
+	 * Comprueba que existen los cruces de ppio y final
+	 */
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
-		/*Este código crea nuevos cruces si no existen los dados
-		 * 
-		 * Junction iniJJ, finalJJ;
-		if(!s.getRoadMap().getJunction(iniJ).equals(null)) //si iniJ ya existe en RoadMap
-			iniJJ = s.getRoadMap().getJunction(iniJ);
-		else iniJJ = new Junction(iniJ);
-		if(!s.getRoadMap().getJunction(finalJ).equals(null)) //si la finalJ también
-			finalJJ = s.getRoadMap().getJunction(finalJ);
-		else finalJJ = new Junction(finalJ);
-		Road r = new Road(vMax, length, iniJJ, finalJJ, id);*/
 		if(done) return;
 		if(s.getRoadMap().getJunction(iniJ) == null || s.getRoadMap().getJunction(finalJ) == null)
 			throw new MissingObjectExc(this);

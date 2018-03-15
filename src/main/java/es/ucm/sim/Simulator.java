@@ -78,8 +78,6 @@ public class Simulator {
 			++simTime;
 			//5 escribir informe si out != null
 			if(escribe) {
-				//OJO un mapa por objeto!!
-				Ini i = new Ini();
 				try {
 					for(SimObj j: m.getJunctions())
 						writeReport(j, out);
@@ -116,7 +114,6 @@ public class Simulator {
 		Map<Integer, String> reference = new HashMap<>();
 		for(int i = 0; i < tagOrder.length; ++i)
 			reference.put(i, tagOrder[i]);
-		
 		//Ahora recorro reference y meto en out solo los mappings cuya key existe en m
 		for(int j = 0; j < reference.size();++j) {
 			String key = m.get(reference.get(j));

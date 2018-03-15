@@ -1,13 +1,11 @@
 package es.ucm.fdi.events;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
 import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
-import es.ucm.sim.obj.SimObj;
 import es.ucm.sim.obj.Vehicle;
 
 public class NewJunctionE extends NewObjE {
@@ -23,7 +21,6 @@ public class NewJunctionE extends NewObjE {
 	public NewJunctionE(int time, String id) {
 		super(time, NAME, id);
 	}
-
 	@Override
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) {
 		if(done) return;
