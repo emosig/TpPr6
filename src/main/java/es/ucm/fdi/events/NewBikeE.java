@@ -16,6 +16,8 @@ public class NewBikeE extends NewVehicleE{
 	}
 	
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
+		if(done) return;
 		vs.add(new Bike(maxV, super.createIt(s), id));
+		done = true;
 	}
 }

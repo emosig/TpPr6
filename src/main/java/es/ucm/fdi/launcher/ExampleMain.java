@@ -1,9 +1,13 @@
 package es.ucm.fdi.launcher;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.io.FilenameFilter;
+import java.io.FileOutputStream;
+//import java.io.FilenameFilter;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 
 import org.apache.commons.cli.CommandLine;
@@ -15,7 +19,6 @@ import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import es.ucm.fdi.ini.Ini;
-import es.ucm.sim.Simulator;
 
 public class ExampleMain {
 
@@ -131,7 +134,7 @@ public class ExampleMain {
 		for (File file : files) {
 			//mi código
 			if(file.getName().endsWith(".ini"))
-				test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout",10);
+				test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout", 10);
 		}
 
 	}
@@ -155,10 +158,12 @@ public class ExampleMain {
 		// TODO
 		// Add your code here. Note that the input argument where parsed and stored into
 		// corresponding fields.
-		Simulator s = new Simulator();
+		InputStream i = new FileInputStream(_inFile);
+		OutputStream o = new FileOutputStream(_outFile);
+		Controller c = new Controller(i, o, _timeLimit);
+		c.run();
 		
-		//a ver cómo pollas leo aquí
-		
+		//File check = new File(_outFile);
 		
 	}
 

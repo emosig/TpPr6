@@ -1,10 +1,11 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
+import static java.lang.Math.toIntExact;
 
-import es.ucm.fdi.ini.IniSection;
+import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.util.MultiTreeMap;
 
 public class Road extends SimObj{
@@ -14,8 +15,10 @@ public class Road extends SimObj{
 	private int longitud;
 	private Junction iniJ, finalJ;
 	private int factorReducc(Vehicle v) {
-		if(vehiculos.ceilingKey(v.getLoc()) == null) return 1; //no hay keys mayores que la del vehiculo
-		else return 2;
+		for(Vehicle veh:vehiculos.innerValues())
+			if(veh.getTAveria() > 0 && !veh.equals(v))
+				if(veh.getLoc() >= v.getLoc()) return 2;
+		return 1;
 	}
 	
 	public Road(int vMax, int length, Junction iniJ, Junction finalJ, String id) {
@@ -42,58 +45,62 @@ public class Road extends SimObj{
 	public Junction getFinalJ() {
 		return finalJ;
 	}
-	
-	public void entraVehiculo(Vehicle v) {
+	/*
+	 * Antes de meter el vehiculo comprueba que no está repetido
+	 */
+	public void entraVehiculo(Vehicle v) throws IdException {
+		boolean yaDentro = false;
+		for(Vehicle veh: vehiculos.innerValues()) 
+			if(veh.getId().equals(v.getId()))
+				yaDentro = true;
+		if(yaDentro) 
+			throw new IdException("Ya existe el vehiculo en la carretera", "vehiculo");
 		vehiculos.putValue(0, v);
 	}
 	
 	public boolean saleVehiculo(Vehicle v) {
-		return vehiculos.removeValue(v.getLoc(), v);
+		return vehiculos.removeValue(0, v);
+	}
+	
+	protected List<Vehicle> sortVehicles(){
+		List<Vehicle> list = vehiculos.valuesAsList();
+		list.sort(new Vehicle.VehicleComparator());
+		return list;
 	}
 	
 	public int calcVBase() {
-		if(vehiculos.size() > 1) return Integer.min(velocidadMax,velocidadMax/vehiculos.size() + 1);
+		int l = toIntExact(vehiculos.sizeOfValues());
+		if(l > 1) return Integer.min(velocidadMax,velocidadMax/l + 1);
 		else return velocidadMax;
 	}
 	
 	public void avVehicles() {
+		//necesito emplear una cola auxiliar para sacar coches de la carretera sin romper el iterador de multitreemap
+		List<Vehicle> abandonQueue = new ArrayList<>();
 		for(Vehicle v: vehiculos.innerValues()) {
-			v.setVelocidadActual(velocidadBase/factorReducc(v));
-			v.avanza();
+			if(v.getTAveria() == 0) 
+				v.setVelocidadActual(velocidadBase/factorReducc(v));
+			v.avanza(abandonQueue);
 		}
+		for(Vehicle gone: abandonQueue) //ahora que no estoy iterando saco los vehiculos de la carretera
+			saleVehiculo(gone);
 	}
 	
 	public void avanza() { //partirla en funciones más pequeñas facilita especificacion clases hijas
-		//cosas del simulador
 		velocidadBase = calcVBase();
 		avVehicles();
-	}
-	
-	/*public String generaInforme() {
-		IniSection ini = new IniSection("road_report");
-		ini.setValue("id", getId());
-		//ini.setValue("time", value); ??
 		
-		if(!vehiculos.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			for(Vehicle v : vehiculos.innerValues()) { //recorrer el multitreemap
-				sb.append("(" + v.getLoc() + "," + v.getId() +"), ");
-			}
-			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
-			ini.setValue("state", String.join(", ", sb));
-		}
-		return ini.toString();
-	}*/
-
+	}
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
 		if(!vehiculos.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
-			for(Vehicle v : vehiculos.innerValues()) //recorrer el multitreemap
-				sb.append("(" + v.getLoc() + "," + v.getId() +"), ");
-			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
-			out.put("state", String.join(", ", sb));
+			for(Vehicle v : sortVehicles())
+				sb.append("(" + v.getId() + "," + v.getLoc() +"),");
+			sb.setLength(sb.length() - 1); //elimino la ultima coma
+			out.put("state", String.join(",", sb));
 		}
+		else out.put("state", "");
 	}
 
 	@Override

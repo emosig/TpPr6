@@ -25,7 +25,9 @@ public class NewCarE extends NewVehicleE{
 	}
 	
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
+		if(done) return;
 		vs.add(new Car(resistance, probability, maxFault, seed, maxV, super.createIt(s), id));
+		done = true;
 	}
 
 }

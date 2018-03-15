@@ -6,7 +6,7 @@ public abstract class SimObj {
 	private String id;
 	protected abstract void fillReportDetails(Map<String, String> out);
 	protected abstract String getReportHeader(); 
-	public abstract void avanza();
+	//public abstract void avanza();
 	
 	public SimObj() {
 		id = "";

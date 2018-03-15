@@ -57,6 +57,16 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
         }
         return total;
     }
+    /*
+     * Esto me lo hago yo que lo necesito para ordenar vehiculos
+     */
+    public List<V> valuesAsList(){
+    	List<V> val = new ArrayList<>();
+    	 for (List<V> l : values())
+    		 for(V v: l)
+    			 val.add(v);
+    	 return val;
+    }
 
     /**
      * Iterates through all internal values

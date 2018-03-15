@@ -1,8 +1,11 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
+import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.ini.IniSection;
 
 public class Vehicle extends SimObj{
@@ -44,6 +47,9 @@ public class Vehicle extends SimObj{
 	public String getRoad() {
 		return itinerario.get(posItinerario).getId();
 	}
+	public Road getActualRoad() {
+		return itinerario.get(posItinerario);
+	}
 	public boolean getLlegado() {
 		return haLlegado;
 	}
@@ -55,52 +61,62 @@ public class Vehicle extends SimObj{
 		tAveria += t;
 	}
 	public void setVelocidadActual(int v) {
-		if(v < velMaxima) velActual = v;
+		if(tAveria > 0) velActual = 0;
+		else if(v < velMaxima) velActual = v;
 		else velActual = velMaxima;
 	}
-	public void avanza() {
+	/*
+	 * La cola que incluyo como parámetro es para hacer salir los vehiculos sin romper el iterador innerValues en la carretera
+	 */
+	public void avanza(List<Vehicle> queue) {
 		if(tAveria > 0) //está averiado
 			--tAveria;
 		else {
 			localizacion += velActual;
-			if(itinerario.get(posItinerario).getLong() < localizacion) {
+			if(itinerario.get(posItinerario).getLong() <= localizacion) {
 				localizacion = itinerario.get(posItinerario).getLong(); //localizacion al final de la carretera
-				itinerario.get(posItinerario).saleVehiculo(this); //sale de la carretera
+				/*if(itinerario.get(posItinerario).getFinalJ().getGreenId().equals(itinerario.get(posItinerario).getId())
+						&& itinerario.get(posItinerario).getFinalJ().isEmpty()) 
+					//esto comprueba si el cruce al que va a ir está en verde para la carretera en cuestión y si hay algún coche en el cruce
+				 */
+					queue.add(this); //se apunta en la cola para salir de la caretera
 				itinerario.get(posItinerario).getFinalJ().entraVehiculo(this); //entra en cruce
 				velActual = 0;
 			}
 		}
 	}
-	public void moverASiguienteCarretera() {
-		//contemplar caso inicial (no está en ninguna carretera??)
-		/*if(localizacion != itinerario.get(posItinerario).getLong())
-			throw algo*/
+	public void moverASiguienteCarretera() throws IdException {
+		if(posItinerario + 1 == itinerario.size()) {
+			haLlegado = true;
+			itinerario.get(posItinerario).saleVehiculo(this);
+			return;
+		}
 		++posItinerario;
+		itinerario.get(posItinerario).entraVehiculo(this);
 		localizacion = 0;
-		if(posItinerario == itinerario.size()) haLlegado = true;
 	}
-	/*public String generaInforme() {
-		IniSection ini = new IniSection("vehicle_report");
-		ini.setValue("id", getId( ));
-		//ini.setValue("time", value); ??
-		ini.setValue("speed", velActual);
-		ini.setValue("kilometrage", kilometrage());
-		ini.setValue("faulty", tAveria);
-		ini.setValue("location", "(" + itinerario.get(posItinerario).getId() + "," + localizacion + ")"); //meter 2 valores
-		return ini.toString();
-	}*/
-
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
-		out.put("speed", String.valueOf(velActual));
-		out.put("kilometrage", String.valueOf(kilometrage()));
+		if(haLlegado) out.put("location", "arrived");
+		else out.put("location", "(" + itinerario.get(posItinerario).getId() + "," + localizacion + ")");
+ 		out.put("speed", String.valueOf(velActual));
 		out.put("faulty", String.valueOf(tAveria));
-		out.put("location", "(" + itinerario.get(posItinerario).getId() + "," + localizacion + ")");
+		out.put("kilometrage", String.valueOf(kilometrage()));
+		
 	}
 
 	@Override
 	protected String getReportHeader() {
 		return "vehicle_report";
 	}
-	
+	public static class VehicleComparator implements Comparator<Vehicle>{
+
+		@Override
+		//está hecho para que se ordenen como en los ejemplos
+		public int compare(Vehicle o1, Vehicle o2) {
+			if(o1.getLoc() == o2.getLoc())
+				return o1.getId().compareToIgnoreCase(o2.getId());
+			else return o2.getLoc() - o1.getLoc();
+		}
+	}
 }

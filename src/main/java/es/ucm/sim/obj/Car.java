@@ -1,6 +1,7 @@
 package es.ucm.sim.obj;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
@@ -23,7 +24,7 @@ public class Car extends Vehicle{
 		n = new Random(seed);
 	}
 	
-	public void avanza() {
+	public void avanza(List<Vehicle> queue) {
 		if(tAveria > 0) {
 			lastFaultKm = 0;
 			--tAveria;
@@ -33,7 +34,7 @@ public class Car extends Vehicle{
 			if(n.nextDouble() < faultProb)
 				tAveria = n.nextInt(maxFault) + 1;
 		}
-		super.avanza();
+		super.avanza(queue);
 	}
 	protected void fillReportDetails(Map<String, String> out) {
 		super.fillReportDetails(out);

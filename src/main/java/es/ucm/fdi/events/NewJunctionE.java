@@ -12,7 +12,7 @@ import es.ucm.sim.obj.Vehicle;
 
 public class NewJunctionE extends NewObjE {
 	private static final String NAME = "new_junction";
-	private class NewJunctionBuilder implements EventBuilder{
+	public static class NewJunctionBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
 			if(!s.getTag().equals(NAME)) return null;
 			int arg1 = Integer.parseInt(s.getValue("time"));
@@ -26,6 +26,8 @@ public class NewJunctionE extends NewObjE {
 
 	@Override
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) {
+		if(done) return;
 		js.add(new Junction(id));
+		done = true;
 	}
 }

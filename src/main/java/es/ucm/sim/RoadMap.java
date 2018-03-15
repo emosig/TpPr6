@@ -3,9 +3,9 @@ package es.ucm.sim;
 import java.util.List;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
-import es.ucm.fdi.events.Event;
 import es.ucm.sim.obj.*;
 
 public class RoadMap {
@@ -19,6 +19,14 @@ public class RoadMap {
 	private List<Junction> junctionsRO;
 	private List<Road> roadsRO;
 	private List<Vehicle> vehiclesRO; 
+	
+	public RoadMap() {
+		simObjects = new HashMap<>();
+		junctionsRO = Collections.unmodifiableList(junctions);
+		roadsRO = Collections.unmodifiableList(roads);
+		vehiclesRO = Collections.unmodifiableList(vehicles);
+	}
+	
 	// búsqueda por ids, unicidad
 	public SimObj getSimObj(String id) {
 		return simObjects.get(id);
@@ -59,25 +67,26 @@ public class RoadMap {
 		return Collections.unmodifiableList(vehiclesRO);
 	}
 	// inserción de objetos (package-protected)
+	//comprueban que la id no figura en simObjects
 	void addJunction(Junction j) {
-		if(simObjects.get(j.getId()).equals(null)) {
+		if(simObjects.get(j.getId()) == null) {
 			simObjects.put(j.getId(), j);
 			junctions.add(j);
-			junctionsRO.add(j);
+			junctionsRO = Collections.unmodifiableList(junctions);
 		}
 	}
 	void addRoad(Road r) {
-		if(simObjects.get(r.getId()).equals(null)) {
+		if(simObjects.get(r.getId()) == null) {
 			simObjects.put(r.getId(), r);
 			roads.add(r);
-			roadsRO.add(r);
+			roadsRO = Collections.unmodifiableList(roads);
 		}
 	}
 	void addVehicle(Vehicle v) {
-		if(simObjects.get(v.getId()).equals(null)) {
+		if(simObjects.get(v.getId()) == null) {
 			simObjects.put(v.getId(), v);
 			vehicles.add(v);
-			vehiclesRO.add(v);
+			vehiclesRO = Collections.unmodifiableList(vehicles);
 		}
 	}
 }

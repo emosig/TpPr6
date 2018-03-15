@@ -4,10 +4,11 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.TreeMap;
 
+import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.ini.IniSection;
 
 public class Junction extends SimObj{
-	private class RoadEnd{
+	private static class RoadEnd{
 		private ArrayDeque<Vehicle> vqueue;
 		private Boolean TrfLight;
 		
@@ -51,7 +52,15 @@ public class Junction extends SimObj{
 	}
 	private TreeMap<String, RoadEnd> incomingRoad;
 	private String greenId; //id de la carretera con semáforo verde
-
+	
+	public String getGreenId() {
+		return greenId;
+	}
+	
+	public boolean isEmpty() {
+		return incomingRoad.isEmpty();
+	}
+	
 	public Junction(String id) {
 		super(id);
 		incomingRoad = new TreeMap<>();
@@ -69,9 +78,15 @@ public class Junction extends SimObj{
 		incomingRoad.put(r.getId(), new RoadEnd());
 	}
 	
-	public void avanza() {
+	public void avanza() throws IdException {
 		if(!incomingRoad.isEmpty()) {
-			if(!incomingRoad.get(greenId).isEmpty()) //en qué caso no es posible??
+			//caso inicial
+			if(greenId == null) {	
+				incomingRoad.firstEntry().getValue().changeTrfLight();
+				greenId = incomingRoad.firstKey();
+			}
+			//A partir de aquí greenId está forzosamente definido
+			if(!incomingRoad.get(greenId).isEmpty())
 				saleVehiculo(greenId).moverASiguienteCarretera();
 			//avanzar los semáforos
 			incomingRoad.get(greenId).changeTrfLight(); // se apaga el semáfoto encendido
@@ -85,25 +100,6 @@ public class Junction extends SimObj{
 			}
 		}
 	}
-	
-	/*public String generaInforme() {
-		IniSection ini = new IniSection("junction_report");
-		ini.setValue("id", getId());
-		//ini.setValue("time", value); ??
-		
-		if(!incomingRoad.isEmpty()) {
-			StringBuilder sb = new StringBuilder();
-			for(String id : incomingRoad.keySet()) { //recorrer el treemap
-				String color;
-				if(id == greenId) color = "green";
-				else color  = "red";
-				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "), ");
-			}
-			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
-			ini.setValue("state", String.join(", ", sb));
-		}
-		return ini.toString();
-	}*/
 
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
@@ -118,6 +114,7 @@ public class Junction extends SimObj{
 			sb.setLength(sb.length() - 2); //elimino la ultima coma y el ultimo espacio
 			out.put("queues", String.join(", ", sb));
 		}
+		else out.put("queues", "");
 	}
 
 	@Override
