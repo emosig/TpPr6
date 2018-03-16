@@ -9,6 +9,12 @@ import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
+/*
+ * "Tú eres todo lo que no es la vida; lo que de bueno y de hermoso los sueños dejan y no existe"
+ * 
+ * 		Fernando Pessoa
+ */
+
 public abstract class Event {
 	protected int time;
 	protected final String name;
@@ -32,7 +38,7 @@ public abstract class Event {
 		return time;
 	}
 	/*
-	 * Los parámetros son listas de objetos a añadir
+	 * Los parámetros js, rs, vs son listas de objetos a añadir
 	 */
 	public abstract void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException;
 }

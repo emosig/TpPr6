@@ -10,11 +10,19 @@ import es.ucm.fdi.events.Event;
 import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.exceptions.MissingObjectExc;
 import es.ucm.fdi.exceptions.NegativeArgExc;
-import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.fdi.util.MultiTreeMap;
 import es.ucm.sim.obj.*;
 
+
+/*
+ * 		"[]en la verdadera nieve
+ * que es la nieve de junio
+ * con flores y semillas
+ * cuando no vas a morir nunca"
+ * 
+ * 		Inger Christensen
+ */
 public class Simulator {
 	private MultiTreeMap<Integer, Event> evs;
 	private RoadMap m;
@@ -32,6 +40,7 @@ public class Simulator {
 	public int getSimTime() {
 		return simTime;
 	}
+	
 	public RoadMap getRoadMap() {
 		return m;
 	}
@@ -41,6 +50,7 @@ public class Simulator {
 		evs.putValue(e.getTime(), e);
 		return true;
 	}
+	
 	public void ejecuta(int steps, OutputStream out){
 		boolean escribe = out != null; //no lo voy a comprobar en cada vuelta del bucle
 		while(simTime < limit) {
@@ -53,11 +63,10 @@ public class Simulator {
 					try {
 						e.ejecuta(this, js, rs, vs);
 					} catch (MissingObjectExc e1) {
-						//e1.printStackTrace();
+						e1.printStackTrace();
 					} catch (IdException e1) {
-						//e1.printStackTrace();
-					}
-					
+						e1.printStackTrace();
+					}	
 					//añado objetos al roadmap
 					for(Junction j: js) m.addJunction(j);
 					for(Road r: rs) m.addRoad(r);
@@ -71,7 +80,7 @@ public class Simulator {
 				try {
 					j.avanza();
 				} catch (IdException e2) {
-					//e2.printStackTrace();
+					e2.printStackTrace();
 				}
 			}
 			//4 incrementar t

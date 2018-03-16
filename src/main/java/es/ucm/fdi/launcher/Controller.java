@@ -10,6 +10,12 @@ import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
 
+/*
+ * 		"Fue entonces
+ * Y la tierra despertó arrojando tembolorosos ríos de polilla"
+ * 
+ * 		Federico García Lorca
+ */
 public class Controller {
 	private Simulator sim;
 	private InputStream in;
@@ -53,7 +59,5 @@ public class Controller {
 		} catch (IOException e) {
 			System.out.println("Error en la lectura de eventos");
 		}
-		
 	}
-
 }

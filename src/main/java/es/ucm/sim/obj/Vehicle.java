@@ -7,6 +7,12 @@ import java.util.Map;
 
 import es.ucm.fdi.exceptions.IdException;
 
+/*
+ * 		"No hay gusto más descansado
+ * que después de haber cagado"
+ * 
+ * 		Franciso de Quevedo
+ */
 public class Vehicle extends SimObj{
 	private int localizacion;
 	private ArrayList<Road> itinerario;
@@ -80,6 +86,9 @@ public class Vehicle extends SimObj{
 			}
 		}
 	}
+	/*
+	 * Comprueba si al salir de la carretera acaba su recorrido, y si no pasa a la siguiente carretera
+	 */
 	public void moverASiguienteCarretera() throws IdException {
 		if(posItinerario + 1 == itinerario.size()) {
 			haLlegado = true;
@@ -93,7 +102,7 @@ public class Vehicle extends SimObj{
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
 		if(haLlegado) out.put("location", "arrived");
-		else out.put("location", "(" + itinerario.get(posItinerario).getId() + "," + localizacion + ")");
+		else out.put("location", new StringBuilder().append('(').append(itinerario.get(posItinerario).getId()).append(',').append(localizacion).append(')').toString());
  		out.put("speed", String.valueOf(velActual));
 		out.put("faulty", String.valueOf(tAveria));
 		out.put("kilometrage", String.valueOf(kilometrage()));

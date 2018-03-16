@@ -8,6 +8,15 @@ import static java.lang.Math.toIntExact;
 import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.util.MultiTreeMap;
 
+/*
+ * 		"Al volver la vista atrás
+ * se ve la senda que nunca
+ * se ha de volver a pisar.
+ * Caminante, no hay camino
+ * sino estelas en la mar.
+ * 
+ * 		Antonio Machado
+ */
 public class Road extends SimObj{
 	protected MultiTreeMap<Integer, Vehicle> vehiculos;
 	protected int velocidadMax;
@@ -59,11 +68,17 @@ public class Road extends SimObj{
 			throw new IdException("Ya existe el vehiculo en la carretera", "vehiculo");
 		vehiculos.putValue(0, v);
 	}
-	
+	/*
+	 * "Es la hora de partir. Oh abandonado!"
+	 * 		
+	 * 		Pablo Neruda
+	 */
 	public boolean saleVehiculo(Vehicle v) {
 		return vehiculos.removeValue(0, v);
 	}
-	
+	/*
+	 * Auxiliar para escribir el report
+	 */
 	protected List<Vehicle> sortVehicles(){
 		List<Vehicle> list = vehiculos.valuesAsList();
 		list.sort(new Vehicle.VehicleComparator());
@@ -77,6 +92,7 @@ public class Road extends SimObj{
 	}
 	
 	public void avVehicles() {
+		//empleo la cola auxiliar abandonQueue para no "romper" vehiculos mientras está iterando
 		for(Vehicle v: vehiculos.innerValues()) {
 			if(v.getTAveria() == 0) 
 				v.setVelocidadActual(velocidadBase/factorReducc(v));
@@ -87,7 +103,7 @@ public class Road extends SimObj{
 				saleVehiculo(gone);
 	}
 	
-	public void avanza() { //partirla en funciones más pequeñas facilita especificacion clases hijas
+	public void avanza() {
 		velocidadBase = calcVBase();
 		avVehicles();
 		
@@ -96,8 +112,8 @@ public class Road extends SimObj{
 	protected void fillReportDetails(Map<String, String> out) {
 		if(!vehiculos.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
-			for(Vehicle v : sortVehicles())
-				sb.append("(" + v.getId() + "," + v.getLoc() +"),");
+			for(Vehicle v : sortVehicles()) 
+				sb.append('(').append(v.getId()).append(',').append(v.getLoc()).append("),");	
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("state", String.join(",", sb));
 		}

@@ -1,10 +1,18 @@
 package es.ucm.sim.obj;
 
+import static java.lang.Math.toIntExact;
+
 import java.util.Map;
 
+/*
+ * 		"Rehúso renunciar a mi profesión
+ * América deja de presionarme, sé lo que estoy haciendo"
+ * 
+ * 		Allen Ginsberg
+ */
 public class Lane extends Road{
 	private int lanes;
-	private int factorReducc(Vehicle v) { //igual para todos los vehiculos?
+	private int factorReducc(Vehicle v) {
 		int avs = 0;
 		for(Vehicle ve : vehiculos.innerValues()) 
 			if(ve.getTAveria() > 0) ++avs;
@@ -16,7 +24,8 @@ public class Lane extends Road{
 		this.lanes = lanes;
 	}
 	public int calcVBase() {
-		if(vehiculos.size() > 1) return Integer.min(velocidadMax,velocidadMax*lanes/vehiculos.size() + 1);
+		int l = toIntExact(vehiculos.sizeOfValues());
+		if(l > 1) return Integer.min(velocidadMax,velocidadMax*lanes/l + 1);
 		else return velocidadMax;
 	}
 	protected void fillReportDetails(Map<String,String> out) {

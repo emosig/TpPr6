@@ -7,8 +7,11 @@ public class MissingObjectExc extends Exception{
 		super(message);
 		System.out.println(message);
 	}
+	
 	public MissingObjectExc(Event e) {
 		super(e.getName().replaceAll("new_", ""));
-		System.out.println("Missing object " + e.getName());
+		StringBuilder sb = new StringBuilder();
+		sb.append("Missing object ").append(e.getName());
+		System.out.println(sb.toString());
 	}
 }

@@ -10,13 +10,22 @@ import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
+
+/*
+ * [] "pero cuando al final del día se recogen
+ * saben que la poesía llegará / si es que llega
+ * siempre que estén a solas con su cuerpo y su alma"
+ * 
+ * 		Mario Benedetti
+ */
 public class MakeVehicleFaultyE extends Event{
 	private int duration;
 	private ArrayList<String> vehicles;
 	private static final String NAME = "make_vehicle_faulty";
+	
 	public static class MakeVehicleFaultyBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
-			if(!s.getTag().equals(NAME)) return null;
+			if(!NAME.equals(s.getTag())) return null;
 			int arg1 = Integer.parseInt(s.getValue("time"));
 			int arg2 = Integer.parseInt(s.getValue("duration"));
 			String[] aux = s.getValue("vehicles").split(",");
@@ -24,6 +33,7 @@ public class MakeVehicleFaultyE extends Event{
 			return new MakeVehicleFaultyE(arg1, arg2, arg3);
 		}
 	}
+	
 	public MakeVehicleFaultyE(int time, int duration, ArrayList<String> vehicles) {
 		super(time, NAME);
 		this.time = time;

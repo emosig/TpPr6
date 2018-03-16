@@ -6,8 +6,17 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import es.ucm.fdi.exceptions.MissingObjectExc;
 import es.ucm.sim.obj.*;
 
+/*
+ * 		"Mirando mi calavera
+ * un nuevo Hamlet dirá:
+ * he aquí un hermoso fósil
+ * de una careta de carnaval"
+ * 
+ * 		Antonio Machado
+ */
 public class RoadMap {
 	// búsqueda por ids, unicidad
 	private Map<String, SimObj> simObjects;
@@ -31,30 +40,32 @@ public class RoadMap {
 	public SimObj getSimObj(String id) {
 		return simObjects.get(id);
 	}
-	public Junction getJunction(String id) {
+	public Junction getJunction(String id) throws MissingObjectExc {
 		for(Junction j:junctions) {
-			if(j.getId().equals(id)) return j;
+			if(id.equals(j.getId())) return j;
 		}
-		return null; //throw algo
+		throw new MissingObjectExc("Can't find a junction with id " + id);
 	}
-	public Road getRoad(String id) {
+	public Road getRoad(String id) throws MissingObjectExc {
 		for(Road r:roads) {
-			if(r.getId().equals(id)) return r;
+			if(id.equals(r.getId())) return r;
 		}
-		return null; //throw algo
+		throw new MissingObjectExc("Can't find a road with id " + id);
 	}
-	public Vehicle getVehicle(String id) {
+	public Vehicle getVehicle(String id) throws MissingObjectExc {
 		for(Vehicle v:vehicles) {
-			if(v.getId().equals(id)) return v;
+			if(id.equals(v.getId())) return v;
 		}
-		return null; //throw algo
+		throw new MissingObjectExc("Can't find a vehicle with id " + id);
 	}
 	//devuelve la carretera (si existe) entre dos cruces
-	public Road getRoadBetween(String id1, String id2) {
+	public Road getRoadBetween(String id1, String id2) throws MissingObjectExc {
 		for(Road r: roads)
-			if(r.getFinalJ().getId().equals(id2) && r.getIniJ().getId().equals(id1))
+			if(id2.equals(r.getFinalJ().getId()) && id1.equals(r.getIniJ().getId()))
 				return r;
-		return null;
+		StringBuilder sb = new StringBuilder();
+		sb.append("Can't find the road between ").append(id1).append(" and ").append(id2);
+		throw new MissingObjectExc(sb.toString());
 	}
 	// listado (sólo lectura)
 	public List<Junction> getJunctions(){

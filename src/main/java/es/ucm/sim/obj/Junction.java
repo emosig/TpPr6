@@ -8,7 +8,19 @@ import java.util.TreeMap;
 
 import es.ucm.fdi.exceptions.IdException;
 
+/*
+ * "¿Qué pasa en la verde alameda?
+ * Pues que no es verde
+ * y que ni quiera hay una alameda."
+ * 
+ * 		Alejandra Pizarnik
+ */
 public class Junction extends SimObj{
+	/*
+	 * Clase auxiliar para almacenar una cola de veliculos mas un semáforo
+	 * Los métodos son sobrecargas y modificaciones elementales de los habituales:
+	 * getters, setters(changeTrfLight), push, poll, toString, isEmpty...
+	 */
 	private static class RoadEnd{
 		private ArrayDeque<Vehicle> vqueue;
 		private Boolean TrfLight;
@@ -16,10 +28,6 @@ public class Junction extends SimObj{
 		public RoadEnd() {
 			vqueue = new ArrayDeque<>();
 			TrfLight = false;
-		}
-		
-		public Boolean green() {
-			return TrfLight;
 		}
 		
 		public ArrayDeque<Vehicle> getQueue(){
@@ -46,7 +54,8 @@ public class Junction extends SimObj{
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for(Vehicle v: vqueue) {
-				sb.append(v.getId() + ",");
+				sb.append(v.getId());
+				sb.append(',');
 			}
 			sb.setLength(sb.length() - 1); //eliminar ultima coma
 			sb.append(']');
@@ -101,7 +110,7 @@ public class Junction extends SimObj{
 				incomingRoad.lastEntry().getValue().changeTrfLight();
 				greenId = incomingRoad.lastKey();
 			}
-			//A partir de aquí greenId está forzosamente definido
+			//A partir de aquí greenId está siempre forzosamente definido
 			if(!incomingRoad.get(greenId).isEmpty())
 				saleVehiculo(greenId).moverASiguienteCarretera();
 			//avanzar los semáforos
@@ -121,11 +130,14 @@ public class Junction extends SimObj{
 	protected void fillReportDetails(Map<String, String> out) {
 		if(!incomingRoad.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
-			for(String id : incomingRoad.keySet()) { //recorrer el treemap
+			for(String id : incomingRoad.keySet()) { 
 				String color;
-				if(id == greenId) color = "green";
+				if(id.equals(greenId)) color = "green"; //null-safe
 				else color  = "red";
-				sb.append("(" + id + "," + color + "," + incomingRoad.get(id).vqueueToString() + "),");
+				//creo lista de cosas que van a ir separadas por coma spara evitar concatenaciones y appends excesivos
+				String[] toAppend = {"(" + id, color, incomingRoad.get(id).vqueueToString() + ")"};
+				for(String s: toAppend)
+					sb.append(s).append(',');
 			}
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("queues", String.join(", ", sb));

@@ -9,6 +9,14 @@ import es.ucm.sim.obj.Lane;
 import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
+/*
+ * 		"Y voy silbando por la calle. Nada
+ * me importas tú, ciudad donde naciera.
+ * Ciudad donde muy lejos, muy lejano,
+ * se escucha el mar, la mar de Dios, inmensa."
+ * 
+ * 		Blas de Otero
+ */
 public class NewLaneE extends NewRoadE{
 	private int lanes;
 
@@ -16,6 +24,7 @@ public class NewLaneE extends NewRoadE{
 		super(time, src, dest, vMax, length, id);
 		this.lanes = lanes;
 	}
+	
 	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
 		if(done) return;
 		if(s.getRoadMap().getJunction(iniJ) == null || s.getRoadMap().getJunction(finalJ) == null)

@@ -133,7 +133,7 @@ public class ExampleMain {
 
 		for (File file : files) {
 			//mi código
-			if(file.getName().endsWith(".ini"))
+			if(file.getName().endsWith(".ini")) //filtro aquí los archivos
 				test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout", 10);
 		}
 
@@ -158,41 +158,38 @@ public class ExampleMain {
 		// TODO
 		// Add your code here. Note that the input argument where parsed and stored into
 		// corresponding fields.
-		InputStream i = new FileInputStream(_inFile);
-		OutputStream o = new FileOutputStream(_outFile);
-		Controller c = new Controller(i, o, _timeLimit);
-		c.run();
-		
-		//File check = new File(_outFile);
+		try {
+			InputStream i = new FileInputStream(_inFile);
+			OutputStream o = new FileOutputStream(_outFile);
+			Controller c = new Controller(i, o, _timeLimit);
+			c.run();
+		} catch(FileNotFoundException f){
+			System.out.println("El sistema no puede encontrar la ruta especificada");
+		}
 		
 	}
 
 	private static void start(String[] args) throws IOException {
 		parseArgs(args);
+		
 		startBatchMode();
 	}
 
 	public static void main(String[] args) throws IOException, InvocationTargetException, InterruptedException {
 
-		// example command lines:
+		// my example command lines:
 		//
-		// -i resources/examples/events/basic/ex1.ini
-		// -i resources/examples/events/basic/ex1.ini -o ex1.out
-		// -i resources/examples/events/basic/ex1.ini -t 20
-		// -i resources/examples/events/basic/ex1.ini -o ex1.out -t 20
+		// -i src/main/resources/examples/events/basic/ex1.ini
+		// -i src/main/resources/examples/events/basic/ex1.ini -o ex1.out
+		// -i src/main/resources/examples/events/basic/ex1.ini -t 20
+		// -i src/main/resources/examples/events/basic/ex1.ini -o ex1.out -t 20
 		// --help
 		//
 
 		// Call test in order to test the simulator on all examples in a directory.
-		// Por qué pollas no funcionas
-	    ///test("resources/examples/basic");
-		test("src/main/resources/examples/basic");
-		//test("D:\\EclipseJava\\Programas\\practicas\\p4\\src\\resources\\examples\\basic");
-
+		//test("src/main/resources/examples/basic");
 		// Call start to start the simulator from command line, etc.
-		//
-		//start(args);
-
+		start(args);
 	}
 
 }

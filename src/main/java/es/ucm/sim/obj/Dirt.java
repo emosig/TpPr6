@@ -2,8 +2,14 @@ package es.ucm.sim.obj;
 
 import java.util.Map;
 
+/*
+ * 		"No te tengas por superior a quien desprecias.
+ * El arte del desprecio noble consiste en eso."
+ * 	
+ * 		Fernando Pessoa
+ */
 public class Dirt extends Road{
-	private int factorReducc(Vehicle v) { //igual para todos los vehiculos?
+	private int factorReducc(Vehicle v) {
 		int avs = 0;
 		for(Vehicle ve : vehiculos.innerValues())
 			if(ve.getTAveria() > 0) ++avs;

@@ -11,13 +11,19 @@ import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
+/*
+ * "Nunca camino hacia el riesgo. Tengo miedo del hastío de los peligros"
+ * 		
+ * 		Fernando Pessoa
+ */
 public class NewVehicleE extends NewObjE{
 	protected int maxV;
 	private ArrayList<String> itinerary;
 	private static final String NAME = "new_vehicle";
+	
 	public static class NewVehicleBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
-			if(!s.getTag().equals(NAME)) return null;
+			if(!NAME.equals(s.getTag())) return null;
 			int arg1 = Integer.parseInt(s.getValue("time"));
 			int arg2 = Integer.parseInt(s.getValue("max_speed"));
 			String[] aux = s.getValue("itinerary").split(",");
@@ -27,11 +33,22 @@ public class NewVehicleE extends NewObjE{
 			if(s.getKeys().size() == 4) //es un vehiculo simple
 				return new NewVehicleE(arg1, arg2, arg3, arg4);
 			else if(s.getKeys().size() == 5) { //es una bicicleta
-				if(!s.getValue("type").equals("bike")) return null;
+				if(!"bike".equals(s.getValue("type"))) return null;
 				return new NewBikeE(arg1, arg2, arg3, arg4);
 			}
-			else { //es un coche
-				if(!s.getValue("type").equals("car")) return null;
+			else if(s.getKeys().size() == 7){//es un coche en el que se ha omitido type
+				int arg5 = Integer.parseInt(s.getValue("resistance"));
+				double arg6 = Double.parseDouble(s.getValue("fault_probability"));
+				int arg7 = Integer.parseInt(s.getValue("max_fault_duration"));
+				if(s.getKeys().contains("seed")) {
+					long arg8 = Long.parseLong(s.getValue("seed"));
+					return new NewCarE(arg5, arg6, arg7, arg8, arg1, arg2, arg3, arg4);
+				}
+				else return new NewCarE(arg5, arg6, arg7, arg1, arg2, arg3, arg4);
+				
+			}
+			else{ //es un coche
+				if(!"car".equals(s.getValue("type"))) return null;
 				int arg5 = Integer.parseInt(s.getValue("resistance"));
 				double arg6 = Double.parseDouble(s.getValue("fault_probability"));
 				int arg7 = Integer.parseInt(s.getValue("max_fault_duration"));
@@ -40,6 +57,7 @@ public class NewVehicleE extends NewObjE{
 			}
 		}
 	}
+	
 	public NewVehicleE(int time, int maxV, ArrayList<String> itinerary, String id) {
 		super(time, NAME, id);
 		this.maxV = maxV;

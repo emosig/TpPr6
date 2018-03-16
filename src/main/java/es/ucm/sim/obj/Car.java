@@ -5,6 +5,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+/*
+ * 		"Si abrí los labios para ver el rostro
+ * puro y terrible de mi patria
+ * si abrí los labios hasta desgarrármelos
+ * me queda la palabra."
+ * 
+ * 		Blas de Otero
+ */
 public class Car extends Vehicle{
 	
 	private int resistKm;
@@ -30,10 +38,9 @@ public class Car extends Vehicle{
 			--tAveria;
 			return;
 		}
-		if(kmSinceFault() >= resistKm) {
+		if(kmSinceFault() >= resistKm) 
 			if(n.nextDouble() < faultProb)
 				tAveria = n.nextInt(maxFault) + 1;
-		}
 		super.avanza(queue);
 	}
 	protected void fillReportDetails(Map<String, String> out) {
