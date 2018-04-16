@@ -82,7 +82,7 @@ public class Road extends SimObj{
 	 * Auxiliar para escribir el report
 	 */
 	protected List<Vehicle> sortVehicles(){
-		List<Vehicle> list = vehiculos.valuesAsList();
+		List<Vehicle> list = vehiculos.valuesList();
 		list.sort(new Vehicle.VehicleComparator());
 		return list;
 	}

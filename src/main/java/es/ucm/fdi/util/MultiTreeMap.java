@@ -17,6 +17,7 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
     public MultiTreeMap(Comparator<K> comparator) {
         super(comparator);
     }
+
     /**
      * Adds a value at the end of the list of values for the specified key.
      * @param key to add the value under
@@ -28,6 +29,7 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
         }
         get(key).add(value);
     }
+
     /**
      * Removes the first occurrence of a value from the list found at
      * a given key. Efficiency is O(size-of-that-list)
@@ -47,25 +49,60 @@ public class MultiTreeMap<K, V> extends TreeMap<K, ArrayList<V>> {
         }
         return removed;
     }
+
     /**
      * Returns the total number of values stored in this multimap
      */
-    public long sizeOfValues() {
-        long total = 0;
+    public int sizeOfValues() {
+        int total = 0;
         for (List<V> l : values()) {
             total += l.size();
         }
         return total;
     }
-    /*
-     * Esto me lo hago yo que lo necesito para ordenar vehiculos
+
+    /**
+     * Returns the values as a read-only list. Changes to this structure
+     * will be immediately reflected in the list.
      */
-    public List<V> valuesAsList(){
-    	List<V> val = new ArrayList<>();
-    	 for (List<V> l : values())
-    		 for(V v: l)
-    			 val.add(v);
-    	 return val;
+    public List<V> valuesList() {
+        return new InnerList();
+    }
+
+    /**
+     * A logical, read-only list containing all elements in
+     * correct order.
+     */
+    private class InnerList extends AbstractList<V> {
+
+        @Override
+        public V get(int index) {
+
+            if (index < 0 || isEmpty()) {
+                throw new IndexOutOfBoundsException(
+                        "Index " + index + " is out of bounds");
+            }
+
+            Iterator<ArrayList<V>> it = values().iterator();
+            ArrayList<V> current = it.next(); // not empty, therefore hasNext()
+            int start = 0;
+
+            while (index >= (start+current.size())) {
+                if (!it.hasNext()) {
+                    throw new IndexOutOfBoundsException(
+                            "Index " + index + " is out of bounds");
+                }
+                start += current.size();
+                current = it.next();
+            }
+
+            return current.get(index - start);
+        }
+
+        @Override
+        public int size() {
+            return sizeOfValues();
+        }
     }
 
     /**
