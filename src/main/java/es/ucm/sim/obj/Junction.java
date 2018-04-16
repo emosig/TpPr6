@@ -21,13 +21,19 @@ public class Junction extends SimObj{
 	 * Los métodos son sobrecargas y modificaciones elementales de los habituales:
 	 * getters, setters(changeTrfLight), push, poll, toString, isEmpty...
 	 */
-	private static class RoadEnd{
-		private ArrayDeque<Vehicle> vqueue;
-		private Boolean TrfLight;
+	protected static class RoadEnd{
+		protected ArrayDeque<Vehicle> vqueue;
+		protected Boolean TrfLight;
+		protected String id;
 		
-		public RoadEnd() {
+		public RoadEnd(String id) {
+			this.id = id;
 			vqueue = new ArrayDeque<>();
 			TrfLight = false;
+		}
+		
+		public String getId() {
+			return id;
 		}
 		
 		public ArrayDeque<Vehicle> getQueue(){
@@ -67,7 +73,7 @@ public class Junction extends SimObj{
 		}
 	}
 	private TreeMap<String, RoadEnd> incomingRoad;
-	private String greenId; //id de la carretera con semáforo verde
+	protected String greenId; //id de la carretera con semáforo verde
 	
 	public Junction(String id) {
 		super(id);
@@ -100,7 +106,19 @@ public class Junction extends SimObj{
 	}
 	
 	public void addRoad(Road r) {	//Cuando se crea una carretera que tiene este cruce como final
-		incomingRoad.put(r.getId(), new RoadEnd());
+		incomingRoad.put(r.getId(), new RoadEnd(r.getId()));
+	}
+	
+	protected void avanzaSem() { //saco esto de avanza() para no repetir código en clases heredadas
+		incomingRoad.get(greenId).changeTrfLight(); // se apaga el semáfoto encendido
+		if(incomingRoad.tailMap(greenId).size() == 1) { //si la id de la carretera en verde es la mayor...
+			greenId = incomingRoad.firstKey(); //actualizar greenId
+			incomingRoad.get(greenId).changeTrfLight();
+		}
+		else {
+			greenId=incomingRoad.higherKey(greenId);
+			incomingRoad.get(greenId).changeTrfLight();
+		}
 	}
 	
 	public void avanza() throws IdException {
@@ -114,15 +132,7 @@ public class Junction extends SimObj{
 			if(!incomingRoad.get(greenId).isEmpty())
 				saleVehiculo(greenId).moverASiguienteCarretera();
 			//avanzar los semáforos
-			incomingRoad.get(greenId).changeTrfLight(); // se apaga el semáfoto encendido
-			if(incomingRoad.tailMap(greenId).size() == 1) { //si la id de la carretera en verde es la mayor...
-				greenId = incomingRoad.firstKey(); //actualizar greenId
-				incomingRoad.get(greenId).changeTrfLight();
-			}
-			else {
-				greenId=incomingRoad.higherKey(greenId);
-				incomingRoad.get(greenId).changeTrfLight();
-			}
+			avanzaSem();
 		}
 	}
 

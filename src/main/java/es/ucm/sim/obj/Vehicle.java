@@ -74,8 +74,11 @@ public class Vehicle extends SimObj{
 	 * La cola que incluyo como parámetro es para hacer salir los vehiculos sin romper el iterador innerValues en la carretera
 	 */
 	public void avanza(List<Vehicle> queue) {
-		if(tAveria > 0) //está averiado
+		if(tAveria > 0) {
+			//está averiado
 			--tAveria;
+			velActual = 0;
+		}	
 		else {
 			localizacion += velActual;
 			if(itinerario.get(posItinerario).getLong() <= localizacion) {

@@ -121,7 +121,8 @@ public class ExampleMain {
 			throw new FileNotFoundException(path);
 		}
 		File[] files = dir.listFiles(
-				/*Me hubiese gustado que fuese de otra forma, pero 
+				/*
+				 * Me hubiese gustado que fuese de otra forma, pero 
 				 * lo que tuvimos FilenameFilter y yo nunca funcionó
 				 * 
 				new FilenameFilter() {
@@ -187,9 +188,9 @@ public class ExampleMain {
 		//
 
 		// Call test in order to test the simulator on all examples in a directory.
-		//test("src/main/resources/examples/basic");
+		test("src/main/resources/examples/advanced");
 		// Call start to start the simulator from command line, etc.
-		start(args);
+		//start(args);
 	}
 
 }

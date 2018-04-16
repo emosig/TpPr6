@@ -23,7 +23,25 @@ public class NewJunctionE extends NewObjE {
 			if(!NAME.equals(s.getTag())) return null;
 			int arg1 = Integer.parseInt(s.getValue("time"));
 			String arg2 = s.getValue("id");
-			return new NewJunctionE(arg1, arg2);
+			if(s.getKeys().size() == 2)
+				return new NewJunctionE(arg1, arg2);
+			else if(s.getKeys().contains("type")) {
+				if(s.getKeys().size() == 5) { //rr
+					if(!s.getValue("type").equals("rr")) return null;
+					int arg3 = Integer.parseInt(s.getValue("max_time_slice"));
+					int arg4 = Integer.parseInt(s.getValue("min_time_slice"));
+					return new NewRRE(arg3, arg4, arg1, arg2);
+				}
+				else { //mc
+					if(!s.getValue("type").equals("mc")) return null;
+					else return new NewMCE(arg1, arg2);
+				}
+				
+				
+				
+					
+			}
+			else return null;
 		}
 	}
 	

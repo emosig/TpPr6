@@ -117,8 +117,8 @@ public class Simulator {
 		m.remove("");
 		//reference proporciona el orden de los distintos campos a la hora de hacer reports
 		String[] tagOrder = {
-				"id", "time", "type", "speed", "kilometrage",
-				"faulty", "location", "state", "queues"
+				"id", "time", "queues", "type", "speed", 
+				"kilometrage", "faulty", "location", "state", 
 		};
 		Map<Integer, String> reference = new HashMap<>();
 		for(int i = 0; i < tagOrder.length; ++i)

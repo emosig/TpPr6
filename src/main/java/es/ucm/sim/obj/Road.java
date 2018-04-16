@@ -68,12 +68,14 @@ public class Road extends SimObj{
 			throw new IdException("Ya existe el vehiculo en la carretera", "vehiculo");
 		vehiculos.putValue(0, v);
 	}
-	/*
-	 * "Es la hora de partir. Oh abandonado!"
-	 * 		
-	 * 		Pablo Neruda
-	 */
 	public boolean saleVehiculo(Vehicle v) {
+		
+		/*
+		 * "Es la hora de partir. Oh abandonado!"
+		 * 		
+		 * 		Pablo Neruda
+		 */
+		
 		return vehiculos.removeValue(0, v);
 	}
 	/*

@@ -12,7 +12,7 @@ import java.util.Map;
  * 		Inger Christensen
  */
 public abstract class SimObj {
-	private String id;
+	protected String id;
 	protected abstract void fillReportDetails(Map<String, String> out);
 	protected abstract String getReportHeader(); 
 	
