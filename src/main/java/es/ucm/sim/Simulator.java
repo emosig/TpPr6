@@ -4,7 +4,10 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+
+import javax.swing.SwingUtilities;
 
 import es.ucm.fdi.events.Event;
 import es.ucm.fdi.exceptions.IdException;
@@ -12,8 +15,8 @@ import es.ucm.fdi.exceptions.MissingObjectExc;
 import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.fdi.util.MultiTreeMap;
+import es.ucm.model.SimulatorListener;
 import es.ucm.sim.obj.*;
-
 
 /*
  * 		"[]en la verdadera nieve
@@ -24,10 +27,50 @@ import es.ucm.sim.obj.*;
  * 		Inger Christensen
  */
 public class Simulator {
-	private MultiTreeMap<Integer, Event> evs;
-	private RoadMap m;
+	
 	private int simTime;
 	private int limit;
+	private MultiTreeMap<Integer, Event> evs;
+	private RoadMap m;
+	private List<SimulatorListener> listeners;
+	
+	public enum EventType{
+		REGISTERED, RESET, NEW_EVENT, ADVANCED, ERROR
+	}
+	
+	public class UpdateEvent {
+		
+		private EventType type;
+		
+		public UpdateEvent(EventType e) {
+			type = e;
+		}
+		
+		public EventType getEvent() {
+			return type;
+		}
+		
+		public List<Vehicle> getVehicles() {
+			return m.getVehicles();
+		}
+		
+		public List<Road> getRoads() {
+			return m.getRoads();
+		}
+		
+		public List<Junction> getJunctions() {
+			return m.getJunctions();
+		}
+		
+		public List<Event> getEventQueue() {
+			return evs.valuesList();
+		}
+		
+		public int getCurrentTime() {
+			return simTime;
+		}
+		// ...
+	}
 	
 	public Simulator(int t) throws NegativeArgExc{
 		if(t <= 0) throw new NegativeArgExc("Pasos de simulación negativos o 0");
@@ -35,6 +78,7 @@ public class Simulator {
 		limit = t;
 		m = new RoadMap();
 		evs = new MultiTreeMap<>();
+		listeners  = new ArrayList<>();
 	}
 	
 	public int getSimTime() {
@@ -47,8 +91,52 @@ public class Simulator {
 	
 	public boolean insertaEvento(Event e) {
 		if(e.getTime() < simTime) return false;
+		
+		fireUpdateEvent(EventType.NEW_EVENT, "");
+		
 		evs.putValue(e.getTime(), e);
 		return true;
+	}
+	
+	public void addSimulatorListener(SimulatorListener l) {
+		listeners.add(l);
+		UpdateEvent ue = new UpdateEvent(EventType.REGISTERED);
+		// evita pseudo-recursividad
+		SwingUtilities.invokeLater(()->l.registered(ue));
+	}
+	
+	public void removeListener(SimulatorListener l) {
+		listeners.remove(l);
+	}
+	
+	// uso interno, evita tener que escribir el mismo bucle muchas veces
+	private void fireUpdateEvent(EventType type, String error) {
+		// envia un evento apropiado a todos los listeners
+		for(SimulatorListener l: listeners) {
+			UpdateEvent ue = new UpdateEvent(type);
+			switch(type) {
+			case RESET:
+				SwingUtilities.invokeLater(()->l.reset(ue));
+				break;
+			case NEW_EVENT:
+				SwingUtilities.invokeLater(()->l.newEvent(ue));
+				break;
+			case ADVANCED:
+				SwingUtilities.invokeLater(()->l.advanced(ue));
+				break;
+			case ERROR:
+				SwingUtilities.invokeLater(()->l.error(ue, error));
+				break;
+			}
+		}
+	}
+	
+	public void reset() {
+		fireUpdateEvent(EventType.RESET, "");
+		//reset
+		simTime = 0;
+		m = new RoadMap();
+		evs = new MultiTreeMap<>();
 	}
 	
 	public void ejecuta(int steps, OutputStream out){
@@ -85,6 +173,11 @@ public class Simulator {
 			}
 			//4 incrementar t
 			++simTime;
+			
+				//advanced()
+			fireUpdateEvent(EventType.ADVANCED, null);
+			
+			
 			//5 escribir informe si out != null
 			if(escribe) {
 				try {

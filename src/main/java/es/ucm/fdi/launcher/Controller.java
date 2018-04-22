@@ -6,6 +6,7 @@ import java.io.OutputStream;
 
 import es.ucm.fdi.events.*;
 import es.ucm.fdi.exceptions.NegativeArgExc;
+import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
@@ -21,12 +22,27 @@ public class Controller {
 	private InputStream in;
 	private OutputStream out;
 	private int ticks;
-
+	
+	//Constructura para modo batch
 	public Controller(InputStream in, OutputStream out, int ticks) {
 		this.in = in;
 		this.out = out;
 		this.ticks = ticks;
 	}
+	
+	//Constructora para modo GUI
+	public Controller(InputStream in, int initialTicks) throws NegativeArgExc {
+		if(in != null) this.in = in;
+		ticks = initialTicks;
+		sim = new Simulator(ticks);
+		//cargar eventos en la zona de eventos!!
+	}
+	
+	public Simulator getSim() throws SimulatorExc {
+		if(sim == null) throw new SimulatorExc();
+		else return sim;
+	}
+	
 	/*
 	 * Parsea los eventos que recibe en formato ini por el input y
 	 * y los añade al simulador

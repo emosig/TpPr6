@@ -10,6 +10,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 
+import javax.swing.SwingUtilities;
+
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -18,7 +20,10 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import es.ucm.fdi.exceptions.NegativeArgExc;
+import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
+import es.ucm.gui.MainFrame;
 
 public class ExampleMain {
 
@@ -27,21 +32,24 @@ public class ExampleMain {
 	private static String _inFile = null;
 	private static String _outFile = null;
 
-	private static void parseArgs(String[] args) {
+	private static boolean parseArgs(String[] args) {
 
 		// define the valid command line options
+		//returns true for GUI mode, false for batch mode
 		//
 		Options cmdLineOptions = buildOptions();
 
 		// parse the command line as provided in args
 		//
 		CommandLineParser parser = new DefaultParser();
+		boolean mode = false;
 		try {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			parseHelpOption(line, cmdLineOptions);
 			parseInFileOption(line);
 			parseOutFileOption(line);
 			parseStepsOption(line);
+			mode = parseModeOption(line);
 
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
@@ -59,7 +67,7 @@ public class ExampleMain {
 			System.err.println(e.getLocalizedMessage());
 			System.exit(1);
 		}
-
+		return mode;
 	}
 
 	private static Options buildOptions() {
@@ -67,6 +75,10 @@ public class ExampleMain {
 
 		cmdLineOptions.addOption(Option.builder("h").longOpt("help").desc("Print this message").build());
 		cmdLineOptions.addOption(Option.builder("i").longOpt("input").hasArg().desc("Events input file").build());
+		
+		cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg().desc(
+				"’batch’ for batch mode and ’gui’ for GUI mode (default value is ’batch’)").build());
+		
 		cmdLineOptions.addOption(
 				Option.builder("o").longOpt("output").hasArg().desc("Output file, where reports are written.").build());
 		cmdLineOptions.addOption(Option.builder("t").longOpt("ticks").hasArg()
@@ -104,6 +116,14 @@ public class ExampleMain {
 			throw new ParseException("Invalid value for time limit: " + t);
 		}
 	}
+	
+	private static boolean parseModeOption(CommandLine line) throws ParseException {
+		//returns true for GUI, false for batch
+		String t = line.getOptionValue("m");
+		if("gui".equals(t)) return true;
+		else if("batch".equals(t)) return false;
+		else throw new ParseException("Invalid mode");
+	}
 
 	/**
 	 * This method run the simulator on all files that ends with .ini if the given
@@ -112,8 +132,10 @@ public class ExampleMain {
 	 * The simulator's output will be stored in "example.ini.out"
 	 * 
 	 * @throws IOException
+	 * @throws InterruptedException 
+	 * @throws InvocationTargetException 
 	 */
-	public static void test(String path) throws IOException {
+	public static void test(String path) throws IOException, InvocationTargetException, InterruptedException {
 
 		File dir = new File(path);
 
@@ -140,14 +162,18 @@ public class ExampleMain {
 
 	}
 
-	private static void test(String inFile, String outFile, String expectedOutFile, int timeLimit) throws IOException {
+	private static void test(String inFile, String outFile, String expectedOutFile, int timeLimit) throws IOException, InvocationTargetException, InterruptedException {
 		_outFile = outFile;
 		_inFile = inFile;
 		_timeLimit = timeLimit;
-		startBatchMode();
+		
+		startGUIMode();
+		
+		/*startBatchMode();
 		boolean equalOutput = (new Ini(_outFile)).equals(new Ini(expectedOutFile));
 		System.out.println("Result for: '" + _inFile + "' : "
 				+ (equalOutput ? "OK!" : ("not equal to expected output +'" + expectedOutFile + "'")));
+				*/
 	}
 
 	/**
@@ -166,14 +192,42 @@ public class ExampleMain {
 			c.run();
 		} catch(FileNotFoundException f){
 			System.out.println("El sistema no puede encontrar la ruta especificada");
-		}
-		
+		}	
+	}
+	
+	/**
+	 * Run the simulator in GUI mode
+	 * 
+	 * @throws IOException
+	 * @throws InterruptedException 
+	 * @throws InvocationTargetException 
+	 */
+	private static void startGUIMode() throws IOException, InvocationTargetException, InterruptedException {
+		InputStream i = null;
+		try {
+			if(_inFile != null) {
+				i = new FileInputStream(_inFile);
+			}
+			Controller c = new Controller(i, _timeLimit); //nueva constructora?
+			SwingUtilities.invokeAndWait(new Runnable() { 
+				public void run() { 
+					try {
+						new MainFrame(c, c.getSim(), null);
+					} catch (SimulatorExc e) {
+						//e.printStackTrace();
+					} 
+					} 
+				});
+		} catch(FileNotFoundException f){
+			System.out.println("El sistema no puede encontrar la ruta especificada");
+		} catch (NegativeArgExc e) {
+			//e.printStackTrace();
+		}	
 	}
 
-	private static void start(String[] args) throws IOException {
-		parseArgs(args);
-		
-		startBatchMode();
+	private static void start(String[] args) throws IOException, InvocationTargetException, InterruptedException {
+		if(parseArgs(args)) startGUIMode();
+		else startBatchMode();
 	}
 
 	public static void main(String[] args) throws IOException, InvocationTargetException, InterruptedException {
