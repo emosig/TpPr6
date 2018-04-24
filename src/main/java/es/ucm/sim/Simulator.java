@@ -69,7 +69,6 @@ public class Simulator {
 		public int getCurrentTime() {
 			return simTime;
 		}
-		// ...
 	}
 	
 	public Simulator(int t) throws NegativeArgExc{
@@ -87,6 +86,10 @@ public class Simulator {
 	
 	public RoadMap getRoadMap() {
 		return m;
+	}
+	
+	public List<Event> getEventQueue() {
+		return evs.valuesList();
 	}
 	
 	public boolean insertaEvento(Event e) {

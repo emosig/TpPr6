@@ -34,7 +34,8 @@ public class Controller {
 	public Controller(InputStream in, int initialTicks) throws NegativeArgExc {
 		if(in != null) this.in = in;
 		ticks = initialTicks;
-		sim = new Simulator(ticks);
+		
+		//sim = new Simulator(ticks);
 		//cargar eventos en la zona de eventos!!
 	}
 	

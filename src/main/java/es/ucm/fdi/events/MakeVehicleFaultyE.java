@@ -2,6 +2,7 @@ package es.ucm.fdi.events;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import es.ucm.fdi.exceptions.MissingObjectExc;
 import es.ucm.fdi.ini.IniSection;
@@ -49,5 +50,15 @@ public class MakeVehicleFaultyE extends Event{
 			s.getRoadMap().getVehicle(idf).setTiempoAveria(duration);
 		}
 		done = true;
+	}
+
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		StringBuilder sb = new StringBuilder("Break Vehicles [");
+		for(String v: vehicles)
+			sb.append(v).append(",");
+		sb.setLength(sb.length() - 1);
+		sb.append("]");
+		out.put("Type", sb.toString());
 	}
 }

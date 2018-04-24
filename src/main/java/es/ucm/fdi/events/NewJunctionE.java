@@ -1,6 +1,7 @@
 package es.ucm.fdi.events;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
@@ -35,11 +36,7 @@ public class NewJunctionE extends NewObjE {
 				else { //mc
 					if(!s.getValue("type").equals("mc")) return null;
 					else return new NewMCE(arg1, arg2);
-				}
-				
-				
-				
-					
+				}	
 			}
 			else return null;
 		}
@@ -53,5 +50,9 @@ public class NewJunctionE extends NewObjE {
 		if(done) return;
 		js.add(new Junction(id));
 		done = true;
+	}
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		out.put("Type", "New Junction " + id);
 	}
 }

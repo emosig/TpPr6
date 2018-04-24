@@ -127,5 +127,21 @@ public class Road extends SimObj{
 		return "road_report";
 	}
 
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		out.put("Source", iniJ.getId());
+		out.put("Target", finalJ.getId());
+		out.put("Length", Integer.toString(longitud));
+		out.put("Max Speed", Integer.toString(velocidadMax));
+		StringBuilder sb = new StringBuilder("[");
+		if(!vehiculos.valuesList().isEmpty()) {
+			for(Vehicle v: vehiculos.valuesList())
+				sb.append(v.getId()).append(",");
+			sb.setLength(sb.length() - 1);
+		}
+		sb.append("]");
+		out.put("Vehicles", sb.toString());
+	}
+
 	
 }

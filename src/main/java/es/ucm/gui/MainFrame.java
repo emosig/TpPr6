@@ -5,6 +5,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -18,30 +20,40 @@ import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
-import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-import javax.swing.table.DefaultTableModel;
 
-import es.ucm.fdi.extra.graphlayout.Graph;
+import es.ucm.fdi.events.Event;
+import es.ucm.fdi.exceptions.SimulatorExc;
+import es.ucm.fdi.extra.graphlayout.GraphComponent;
 import es.ucm.fdi.launcher.Controller;
+import es.ucm.fdi.util.MyTableModel;
 import es.ucm.model.SimulatorListener;
+import es.ucm.sim.RoadMap;
 import es.ucm.sim.Simulator;
 import es.ucm.sim.Simulator.UpdateEvent;
 
-public class MainFrame extends JFrame implements SimulatorListener{
+public class MainFrame extends JFrame {
 	
 	private Controller ctrl;
 	private OutputStream reportsOutputStream;
 	
-	private JTextArea evEditor; // editor de eventos 
-	private JTable evQueue; // cola de eventos 
-	private JPanel reportsArea; // zona de informes 
-	private JTable vehiclesTable; // tabla de vehiculos 
-	private JTable roadsTable; // tabla de carreteras 
-	private JTable junctionsTable; // tabla de cruces 
-	private Graph map;
+	private MyTableModel vedata;
+	private MyTableModel rodata;
+	private MyTableModel judata;
+	private MyTableModel evdata;
+	
+	private JScrollPane evEditor;
+	private JScrollPane evQueue; 
+	private JScrollPane reportsArea; 
+	private JScrollPane vehicles;
+	private JScrollPane roads;
+	private JScrollPane junctions;
+	private JTable vehiclesTable; 
+	private JTable roadsTable;
+	private JTable junctionsTable; 
 	private JPanel mapPane;
+	private RoadMapGraph map;
 	
 	private JSplitPane tableSplit1;
 	private JSplitPane tableSplit2;
@@ -58,68 +70,102 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private JFileChooser chooser; 
 	private File file;
 	
-	public MainFrame(Controller ctrl, Simulator sim, String inFileName) {
+	private static final Dimension MINSIZE = new Dimension(100, 60);
+	
+	public MainFrame(Controller ctrl, String inFileName) throws SimulatorExc {
 		super("Traffic Simulator");
-		this.ctrl = ctrl; 
+		this.ctrl = ctrl;
+		ctrl.run();
 		currentFile = inFileName != null ? new File(inFileName) : null;
 		/*
 		reportsOutputStream = new JTextAreaOutputStream(reportsArea,null);
-		ctrl.setOutputStream(reportsOutputStream); // ver sección 8 
+		ctrl.setOutputStream(reportsOutputStream); 
 		*/
-		sim.addSimulatorListener(this);
+		//sim.addSimulatorListener(this);
 		initGUI();
 	}
 	
+	//muchos métodos de uso interno en initGUI
+	
 	private void border(String title, JComponent comp) {
-		//para uso interno de cada componente visible
 		TitledBorder border = new TitledBorder(title);
 	    border.setTitleJustification(TitledBorder.LEFT);
 	    border.setTitlePosition(TitledBorder.TOP);
 	    comp.setBorder(border);
 	}
 	
-	public void initEvEditor() {
-		border("Events Editor", evEditor);
+	private void scroll(JScrollPane sp) {
+		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 	
-	public void initEvQueue() {
+	private void initTableModels(RoadMap rm, List<Event> evs) {
+		evdata = new MyTableModel(evs);
+		judata = new MyTableModel(rm.getJunctions());
+		rodata = new MyTableModel(rm.getRoads());
+		vedata = new MyTableModel(rm.getVehicles());
+	}
+	
+	private void initEvEditor() {
+		JTextArea evEditorAux = new JTextArea();
+		border("Events Editor", evEditorAux);
+		evEditorAux.setMinimumSize(MINSIZE);
+		evEditor = new JScrollPane(evEditorAux);
+		scroll(evEditor);
+	}
+	
+	private void initEvQueue() {
+		JTable evQueueTable = new JTable(evdata);
+		evQueue = new JScrollPane(evQueueTable);
 		border("Events Queue", evQueue);
-		
-        /*Nada funciona.
-         * 
-         * JTable evQueueTable = new JTable(new DefaultTableModel());
-		add(evQueueTable);
-		JScrollPane sc = new JScrollPane(evQueue);
-		sc.setVisible(true);
-		add(sc);*/
+		scroll(evQueue);
 	}
 	
-	public void initReportsArea() {
-		border("Reports Area", reportsArea);
-		reportsArea.setLayout(new BorderLayout());
+	private void initReportsArea() {
+		JPanel reportsAreaAux = new JPanel();
+		border("Reports Area", reportsAreaAux);
+		reportsAreaAux.setLayout(new BorderLayout());
 		JTextArea ta = new JTextArea();
 		ta.setEditable(false);
-		ta.append("test");
-		reportsArea.add(ta);
-	}
-	
-	public void initVTable() {
-		border("Vehicles", vehiclesTable);
-	}
-	
-	public void initRTable() {
-		border("Roads", roadsTable);
-	} 
-	
-	public void initJTable() {
-		border("Junctions", junctionsTable);
-	}
-	
-	public void initMap() {
+		ta.append("test");///
+		reportsAreaAux.add(ta);
+		reportsAreaAux.setMinimumSize(MINSIZE);
+		reportsArea = new JScrollPane(reportsAreaAux);
+		scroll(reportsArea);
 		
 	}
 	
-	public void initMenu() {
+	private void initVTable() {
+		vehiclesTable = new JTable(vedata);
+		vehicles = new JScrollPane(vehiclesTable);
+		border("Vehicles", vehicles);
+		scroll(vehicles);
+		
+	}
+	
+	private void initRTable() {
+		roadsTable = new JTable(rodata); //desaparece por arte de magia
+		roads = new JScrollPane(roads);
+		border("Roads", roads);
+		scroll(roads);
+	} 
+	
+	private void initJunTable() {
+		junctionsTable = new JTable(judata);
+		junctions = new JScrollPane(junctionsTable);
+		border("Junctions", junctions);
+		scroll(junctions);
+	}
+	
+	private void initMap() throws SimulatorExc {
+		mapPane = new JPanel();
+		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
+		mapPane.add(map);
+		mapPane.setMinimumSize(MINSIZE);
+		 
+	}
+	
+	private void initMenu() {
 		//Creación menú
 		JMenuBar menu = new JMenuBar();
 		menu.add(fileMenu = new JMenu("File"));
@@ -150,47 +196,41 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		this.getRootPane().setJMenuBar(menu);
 	}
 	
-	public void initGUI() {
-	
+	private void initGUI() throws SimulatorExc {
 		
-		//Agrupo los componentes visibles
-		JComponent visibleComp[] = {
-				vehiclesTable = new JTable(), roadsTable = new JTable(), 
-				junctionsTable = new JTable(), evQueue = new JTable(), 
-				evEditor = new JTextArea(), reportsArea = new JPanel(), mapPane = new JPanel()
-		};
+		initTableModels(ctrl.getSim().getRoadMap(), ctrl.getSim().getEventQueue());
+		initEvEditor();
+		initEvQueue();
+		initReportsArea();
+		initVTable();
+		initRTable();
+		initJunTable();
+		initMap();
+		initMenu();
 		
-		//Fijo una dimensión mínima para todos los elementos
-		Dimension minimumSize = new Dimension(100, 60);
-		for(JComponent c: visibleComp)
-			c.setMinimumSize(minimumSize);
-		
-		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehiclesTable, roadsTable);
+		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehicles, roads); //implementar splitpane ternarios?
 		upperSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueue);
-		tableSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tableSplit1, junctionsTable);
+		tableSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tableSplit1, junctions);
 		upperSplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, upperSplit1, reportsArea);
 		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, mapPane);
 		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
+		for (JSplitPane p : new JSplitPane[] {
+				tableSplit1, tableSplit2, upperSplit1, upperSplit2, bottomSplit, mainSplit}) {
+			p.setResizeWeight(.5);
+		}
 		
-		//Un guarrada tremenda, pero no encuentro una forma más limpia de
-		//dividir al inicio los paneles de manera coherente
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				mainSplit.setDividerLocation(0.4);
-				bottomSplit.setDividerLocation(0.6);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						upperSplit2.setDividerLocation(0.7);
-						tableSplit2.setDividerLocation(0.7);
-						SwingUtilities.invokeLater(new Runnable() {
-							public void run() {
-								upperSplit1.setDividerLocation(0.5);
-								tableSplit1.setDividerLocation(0.5);
-							}
-						});
-					}
+		//meter esto en otro método fuera de initgui formatear()?
+		SwingUtilities.invokeLater(() -> {
+			mainSplit.setDividerLocation(0.4);
+			bottomSplit.setDividerLocation(0.7);
+			SwingUtilities.invokeLater(() -> {
+				upperSplit2.setDividerLocation(0.7);
+				tableSplit2.setDividerLocation(0.7);
+				SwingUtilities.invokeLater(() -> {
+					upperSplit1.setDividerLocation(0.5);
+					tableSplit1.setDividerLocation(0.5);
 				});
-			}
+			});
 		});
 		
 		
@@ -203,54 +243,45 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		mainSplit.setBackground(Color.yellow);
 		
 		this.add(chooser = new JFileChooser());
-		this.add(bar = new JToolBar());*/
+		*/
 		
-		
-		
-		initEvEditor();
-		initEvQueue();
-		initReportsArea();
-		initVTable();
-		initRTable();
-		initJTable();
-		initMap();
-		initMenu();
 		
 		this.setLayout(new BorderLayout());
 		this.setContentPane(mainSplit);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setSize(720, 480);
-		
 		this.setVisible(true);
 	}
 
-	@Override
-	public void registered(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void reset(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void newEvent(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void advanced(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void error(UpdateEvent ue, String error) {
-		// TODO Auto-generated method stub
-		
-	}
+	private SimulatorListener listener = new SimulatorListener() {
+		@Override
+		public void registered(UpdateEvent ue) {
+			// TODO Auto-generated method stub
+			
+		}
+	
+		@Override
+		public void reset(UpdateEvent ue) {
+			// TODO Auto-generated method stub
+			
+		}
+	
+		@Override
+		public void newEvent(UpdateEvent ue) {
+			// TODO Auto-generated method stub
+			
+		}
+	
+		@Override
+		public void advanced(UpdateEvent ue) {
+			// TODO Auto-generated method stub
+			
+		}
+	
+		@Override
+		public void error(UpdateEvent ue, String error) {
+			// TODO Auto-generated method stub
+			
+		}
+	};
 }

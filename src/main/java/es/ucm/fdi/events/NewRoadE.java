@@ -1,6 +1,7 @@
 package es.ucm.fdi.events;
 
 import java.util.ArrayList;
+import java.util.Map;
 
 import es.ucm.fdi.exceptions.MissingObjectExc;
 import es.ucm.fdi.ini.IniSection;
@@ -72,5 +73,9 @@ public class NewRoadE extends NewObjE{
 		finalJJ.addRoad(myRoad);
 		rs.add(myRoad);
 		done = true;
+	}
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		out.put("Type", "New Road " + id);
 	}
 }

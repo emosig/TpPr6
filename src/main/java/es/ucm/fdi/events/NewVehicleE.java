@@ -2,6 +2,7 @@ package es.ucm.fdi.events;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Map;
 
 import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.exceptions.MissingObjectExc;
@@ -83,5 +84,9 @@ public class NewVehicleE extends NewObjE{
 		//meto el vehiculo en la primera carretera de su itinerario 
 		v.getActualRoad().entraVehiculo(v);
 		done = true;
+	}
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		out.put("Type", "New Vehicle " + id);
 	}
 }

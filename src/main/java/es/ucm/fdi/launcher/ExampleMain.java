@@ -212,7 +212,7 @@ public class ExampleMain {
 			SwingUtilities.invokeAndWait(new Runnable() { 
 				public void run() { 
 					try {
-						new MainFrame(c, c.getSim(), null);
+						new MainFrame(c, null);
 					} catch (SimulatorExc e) {
 						//e.printStackTrace();
 					} 
@@ -242,7 +242,7 @@ public class ExampleMain {
 		//
 
 		// Call test in order to test the simulator on all examples in a directory.
-		test("src/main/resources/examples/advanced");
+		test("src/main/resources/examples/basic");
 		// Call start to start the simulator from command line, etc.
 		//start(args);
 	}

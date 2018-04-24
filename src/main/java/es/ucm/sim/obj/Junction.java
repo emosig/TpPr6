@@ -159,4 +159,40 @@ public class Junction extends SimObj{
 	protected String getReportHeader() {
 		return "junction_report";
 	}
+	
+	/*
+	 * Auxiliar a describeFurther()
+	 */
+	//perfeccionar (no entiendo dos puntos)
+	private void describeCommon(StringBuilder sb, String id, String color) {
+		sb.append(id).append(",").append(color).append(",[");
+		if(!incomingRoad.get(id).isEmpty()) {
+			for(Vehicle v: incomingRoad.get(id).getQueue())
+				sb.append(v.getId()).append(",");
+			sb.setLength(sb.length() - 1);//borra la última coma
+		}
+		sb.append("],");
+	}
+	
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		StringBuilder sbRe = new StringBuilder("[");
+		StringBuilder sbGr = new StringBuilder("[");
+		if(!incomingRoad.isEmpty()) {
+			sbRe.append("(");
+			sbGr.append("(");
+			for(String id : incomingRoad.keySet()) {
+				if(id.equals(greenId)) describeCommon(sbGr, id, "green");
+				else describeCommon(sbRe, id, "red");
+			}
+			sbRe.setLength(sbRe.length() - 1);  //borra última coma
+			sbGr.setLength(sbGr.length() - 1);
+			sbRe.append(")");
+			sbGr.append(")");
+		}
+		sbRe.append("]");
+		sbGr.append("]");
+		out.put("Green", sbGr.toString());
+		out.put("Red", sbRe.toString());
+	}
 }

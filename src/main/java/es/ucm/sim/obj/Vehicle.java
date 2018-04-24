@@ -126,4 +126,21 @@ public class Vehicle extends SimObj{
 			else return o2.getLoc() - o1.getLoc();
 		}
 	}
+	@Override
+	protected void describeFurther(Map<String, String> out) {
+		out.put("Road", itinerario.get(posItinerario).getId());
+		out.put("Location", Integer.toString(localizacion));
+		out.put("Speed", Integer.toString(velActual));
+		out.put("Km", Integer.toString(kilometrage()));
+		out.put("Faulty Units", Integer.toString(tAveria));
+		StringBuilder sb = new StringBuilder("[");
+		if(!itinerario.isEmpty()) {
+		sb.append(itinerario.get(0).getIniJ().getId());
+			for(Road r: itinerario)
+				sb.append(r.getFinalJ().getId()).append(",");
+			sb.setLength(sb.length() - 1);
+		}
+		sb.append("]");
+		out.put("Itinerary", sb.toString());
+	}
 }
