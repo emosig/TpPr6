@@ -11,6 +11,7 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 
 import es.ucm.fdi.extra.graphlayout.Dot;
 import es.ucm.fdi.extra.graphlayout.Edge;
@@ -31,6 +32,7 @@ public class RoadMapGraph extends JPanel{
 		_graphComp = new GraphComponent();
 		rm = r;
 		generateGraph();
+		add(_graphComp);
 	}
 	
 	private void generateGraph() {

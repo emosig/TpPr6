@@ -1,7 +1,9 @@
 package es.ucm.gui;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.io.OutputStream;
 
@@ -16,9 +18,11 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import es.ucm.fdi.control.SimulatorAction;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.launcher.Controller;
 import es.ucm.fdi.util.MyTable;
@@ -36,7 +40,6 @@ public class MainFrame extends JFrame {
 	private JScrollPane vehicles;
 	private JScrollPane roads;
 	private JScrollPane junctions;
-	private JPanel mapPane;
 	private RoadMapGraph map;
 	
 	private JSplitPane tableSplit1;
@@ -111,12 +114,15 @@ public class MainFrame extends JFrame {
 		
 	}
 	
+	//He intentado hacer una función para no repetir código
+	//en los procedimientos que init(algo)Table, pero por alguna
+	//razón falla al instanciar JScrollPane en un método aparte
+	
 	private void initVTable() throws SimulatorExc {
 		MyTable vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
 		vehicles = new JScrollPane(vehiclesTable);
 		border("Vehicles", vehicles);
 		scroll(vehicles);
-		
 	}
 	
 	private void initRTable() throws SimulatorExc {
@@ -135,11 +141,7 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initMap() throws SimulatorExc {
-		mapPane = new JPanel();
 		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
-		mapPane.add(map);
-		mapPane.setMinimumSize(MINSIZE);
-		 
 	}
 	
 	private void initMenu() {
@@ -173,6 +175,84 @@ public class MainFrame extends JFrame {
 		this.getRootPane().setJMenuBar(menu);
 	}
 	
+	/*
+	 * Tomado de SimWindow
+	 */
+	private void addBars() {
+		// instantiate actions
+		SimulatorAction exit = new SimulatorAction(
+				"Exit", "exit.png", "Exit the application",
+				KeyEvent.VK_A, "control shift X", 
+				()-> System.exit(0));
+		SimulatorAction save = new SimulatorAction(
+				"Save Events", "save.png", "Save changes",
+				KeyEvent.VK_S, "control S", 
+				()-> System.err.println("saving..."));
+		SimulatorAction load = new SimulatorAction(
+				"Load Events", "open.png", "Load events from file",
+				KeyEvent.VK_L, "control L", 
+				()-> System.err.println("loading..."));
+		SimulatorAction saveRe = new SimulatorAction(
+				"Save Report", "save_report.png", "Save current report",
+				KeyEvent.VK_R, "control R", 
+				()-> System.err.println("saving..."));
+		SimulatorAction run = new SimulatorAction(
+				"Run", "play.png", "Start simulation",
+				KeyEvent.VK_Q, "control Q", 
+				()-> System.err.println("simulating..."));
+		SimulatorAction reset = new SimulatorAction(
+				"Reset", "reset.png", "Reset simulation",
+				KeyEvent.VK_W, "control W", 
+				()-> System.err.println("reseting..."));
+		SimulatorAction redirect = new SimulatorAction(
+				"Redirect Output", "report.png", "Save current report",
+				KeyEvent.VK_D, "control D", 
+				()-> System.err.println(""));
+		SimulatorAction generate = new SimulatorAction(
+				"Generate", "report.png", "Generate report",
+				KeyEvent.VK_G, "control G", 
+				()-> System.err.println("generating..."));
+		SimulatorAction clear = new SimulatorAction(
+				"Clear", "clear.png", "Clear reports area",
+				KeyEvent.VK_F, "control F", 
+				()-> System.err.println("clearing..."));
+
+		// add actions to toolbar, and bar to window
+		JToolBar bar = new JToolBar();
+		for(SimulatorAction a: new SimulatorAction[] {
+				exit, save, load, saveRe, run, reset, redirect,
+				generate, clear})
+			bar.add(a);
+		getContentPane().add(bar, BorderLayout.NORTH);
+
+		// add actions to menubar, and bar to window
+		JMenu file = new JMenu("File");
+		file.add(load);		
+		file.add(save);		
+		file.addSeparator();
+		file.add(saveRe);
+		file.addSeparator();
+		file.add(exit);
+		
+		JMenu sim = new JMenu("Simulator");
+		sim.add(run);		
+		sim.add(reset);		
+		sim.add(redirect);
+		
+		JMenu rep = new JMenu("Reports");
+		rep.add(generate);	
+		rep.add(clear);
+		
+		JMenuBar menu = new JMenuBar();
+		menu.add(file);
+		menu.add(sim);
+		menu.add(rep);
+		setJMenuBar(menu);
+	}
+	
+	/*
+	 * Inicia y configura todos los componentes visibles
+	 */
 	private void initGUI() throws SimulatorExc {
 		initEvEditor();
 		initEvQueue();
@@ -181,14 +261,15 @@ public class MainFrame extends JFrame {
 		initRTable();
 		initJunTable();
 		initMap();
-		initMenu();
+		addBars();
 		
 		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehicles, roads); //implementar splitpane ternarios?
 		upperSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueue);
 		tableSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tableSplit1, junctions);
 		upperSplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, upperSplit1, reportsArea);
-		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, mapPane);
+		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, map);
 		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
+		//para redimensionamiento automático
 		for (JSplitPane p : new JSplitPane[] {
 				tableSplit1, tableSplit2, upperSplit1, upperSplit2, bottomSplit, mainSplit}) {
 			p.setResizeWeight(.5);
