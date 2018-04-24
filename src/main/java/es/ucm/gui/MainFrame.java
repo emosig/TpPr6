@@ -1,12 +1,9 @@
 package es.ucm.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.io.File;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -18,19 +15,14 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
-import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
-import es.ucm.fdi.events.Event;
 import es.ucm.fdi.exceptions.SimulatorExc;
-import es.ucm.fdi.extra.graphlayout.GraphComponent;
 import es.ucm.fdi.launcher.Controller;
-import es.ucm.fdi.util.MyTableModel;
+import es.ucm.fdi.util.MyTable;
 import es.ucm.model.SimulatorListener;
-import es.ucm.sim.RoadMap;
-import es.ucm.sim.Simulator;
 import es.ucm.sim.Simulator.UpdateEvent;
 
 public class MainFrame extends JFrame {
@@ -38,20 +30,12 @@ public class MainFrame extends JFrame {
 	private Controller ctrl;
 	private OutputStream reportsOutputStream;
 	
-	private MyTableModel vedata;
-	private MyTableModel rodata;
-	private MyTableModel judata;
-	private MyTableModel evdata;
-	
 	private JScrollPane evEditor;
 	private JScrollPane evQueue; 
 	private JScrollPane reportsArea; 
 	private JScrollPane vehicles;
 	private JScrollPane roads;
 	private JScrollPane junctions;
-	private JTable vehiclesTable; 
-	private JTable roadsTable;
-	private JTable junctionsTable; 
 	private JPanel mapPane;
 	private RoadMapGraph map;
 	
@@ -66,7 +50,6 @@ public class MainFrame extends JFrame {
 	private JMenu fileMenu; 
 	private JMenu simMenu; 
 	private JMenu reportsMenu; 
-	//private JToolBar bar;
 	private JFileChooser chooser; 
 	private File file;
 	
@@ -99,13 +82,6 @@ public class MainFrame extends JFrame {
 		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 	
-	private void initTableModels(RoadMap rm, List<Event> evs) {
-		evdata = new MyTableModel(evs);
-		judata = new MyTableModel(rm.getJunctions());
-		rodata = new MyTableModel(rm.getRoads());
-		vedata = new MyTableModel(rm.getVehicles());
-	}
-	
 	private void initEvEditor() {
 		JTextArea evEditorAux = new JTextArea();
 		border("Events Editor", evEditorAux);
@@ -114,8 +90,8 @@ public class MainFrame extends JFrame {
 		scroll(evEditor);
 	}
 	
-	private void initEvQueue() {
-		JTable evQueueTable = new JTable(evdata);
+	private void initEvQueue() throws SimulatorExc {
+		MyTable evQueueTable = new MyTable(ctrl.getSim().getEventQueue());
 		evQueue = new JScrollPane(evQueueTable);
 		border("Events Queue", evQueue);
 		scroll(evQueue);
@@ -135,26 +111,27 @@ public class MainFrame extends JFrame {
 		
 	}
 	
-	private void initVTable() {
-		vehiclesTable = new JTable(vedata);
+	private void initVTable() throws SimulatorExc {
+		MyTable vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
 		vehicles = new JScrollPane(vehiclesTable);
 		border("Vehicles", vehicles);
 		scroll(vehicles);
 		
 	}
 	
-	private void initRTable() {
-		roadsTable = new JTable(rodata); //desaparece por arte de magia
-		roads = new JScrollPane(roads);
+	private void initRTable() throws SimulatorExc {
+		MyTable roadsTable = new MyTable(ctrl.getSim().getRoadMap().getRoads());
+		roads = new JScrollPane(roadsTable);
 		border("Roads", roads);
 		scroll(roads);
 	} 
 	
-	private void initJunTable() {
-		junctionsTable = new JTable(judata);
+	private void initJunTable() throws SimulatorExc {
+		MyTable junctionsTable = new MyTable(ctrl.getSim().getRoadMap().getJunctions());
 		junctions = new JScrollPane(junctionsTable);
 		border("Junctions", junctions);
 		scroll(junctions);
+		
 	}
 	
 	private void initMap() throws SimulatorExc {
@@ -197,8 +174,6 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initGUI() throws SimulatorExc {
-		
-		initTableModels(ctrl.getSim().getRoadMap(), ctrl.getSim().getEventQueue());
 		initEvEditor();
 		initEvQueue();
 		initReportsArea();
@@ -245,10 +220,10 @@ public class MainFrame extends JFrame {
 		this.add(chooser = new JFileChooser());
 		*/
 		
-		
 		this.setLayout(new BorderLayout());
 		this.setContentPane(mainSplit);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		pack();
 		this.setSize(720, 480);
 		this.setVisible(true);
 	}
