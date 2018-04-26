@@ -13,11 +13,7 @@ import es.ucm.sim.obj.Vehicle;
 
 
 /*
- * [] "pero cuando al final del día se recogen
- * saben que la poesía llegará / si es que llega
- * siempre que estén a solas con su cuerpo y su alma"
- * 
- * 		Mario Benedetti
+ * Evento para la avería de un vehículo
  */
 public class MakeVehicleFaultyE extends Event{
 	private int duration;
@@ -35,14 +31,17 @@ public class MakeVehicleFaultyE extends Event{
 		}
 	}
 	
-	public MakeVehicleFaultyE(int time, int duration, ArrayList<String> vehicles) {
+	public MakeVehicleFaultyE(int time, int duration, 
+			ArrayList<String> vehicles) {
 		super(time, NAME);
 		this.time = time;
 		this.duration = duration;
 		this.vehicles = vehicles;
 	}
 
-	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc {
+	public void ejecuta(Simulator s, ArrayList<Junction> js, 
+			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
+					throws MissingObjectExc {
 		if(done) return;
 		for(String idf: vehicles) {
 			if(s.getRoadMap().getVehicle(idf) == null)

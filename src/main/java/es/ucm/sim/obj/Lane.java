@@ -5,10 +5,7 @@ import static java.lang.Math.toIntExact;
 import java.util.Map;
 
 /*
- * 		"Rehúso renunciar a mi profesión
- * América deja de presionarme, sé lo que estoy haciendo"
- * 
- * 		Allen Ginsberg
+ * 	Autopista
  */
 public class Lane extends Road{
 	private int lanes;
@@ -19,7 +16,8 @@ public class Lane extends Road{
 		if(avs < lanes) return 1;
 		else return 2;
 	}
-	public Lane(int lanes, int vMax, int length, Junction iniJ, Junction finalJ, String id) {
+	public Lane(int lanes, int vMax, int length, Junction iniJ, 
+			Junction finalJ, String id) {
 		super(vMax, length, iniJ, finalJ, id);
 		this.lanes = lanes;
 	}

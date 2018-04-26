@@ -10,12 +10,8 @@ import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
-
 /*
- * 	"Hablo de lo que no es
- * 	Hablo de lo que conozco"
- * 
- * 		Alejandra Pizarnik
+ * 	Evento para nuevo coche
  */
 public class NewCarE extends NewVehicleE{
 	private int resistance;
@@ -23,26 +19,38 @@ public class NewCarE extends NewVehicleE{
 	private int maxFault;
 	private long seed;
 	
-	public NewCarE(int resistance, double probability, int maxFault, long seed, int time, int maxV, ArrayList<String> itinerary, String id) {
+	/*
+	 * @param seed - es opcional
+	 */
+	public NewCarE(int resistance, double probability, int maxFault, long seed, 
+			int time, int maxV, ArrayList<String> itinerary, String id) {
 		super(time, maxV, itinerary, id);
-		this.resistance = resistance;
-		this.probability = probability;
-		this.maxFault = maxFault;
+		commonInit(resistance, probability, maxFault);
 		this.seed = seed;
 	}
 	
-	public NewCarE(int resistance, double probability, int maxFault, int time, int maxV, ArrayList<String> itinerary, String id) {
-		//seed es opcional
+	public NewCarE(int resistance, double probability, int maxFault, int time,
+			int maxV, ArrayList<String> itinerary, String id) {
 		super(time, maxV, itinerary, id);
-		this.resistance = resistance;
-		this.probability = probability;
-		this.maxFault = maxFault;
+		commonInit(resistance, probability, maxFault);
 		seed = System.currentTimeMillis();
 	}
 	
-	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException {
+	/*
+	 * Parte común a las dos constructoras
+	 */
+	public void commonInit(int resistance, double probability, int maxFault) {
+		this.resistance = resistance;
+		this.probability = probability;
+		this.maxFault = maxFault;
+	}
+	
+	public void ejecuta(Simulator s, ArrayList<Junction> js, 
+			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
+					throws MissingObjectExc, IdException {
 		if(done) return;
-		Car c = new Car(resistance, probability, maxFault, seed, maxV, super.createIt(s), id);
+		Car c = new Car(resistance, probability, maxFault, seed, maxV, 
+				super.createIt(s), id);
 		vs.add(c);
 		c.getActualRoad().entraVehiculo(c);
 		done = true;

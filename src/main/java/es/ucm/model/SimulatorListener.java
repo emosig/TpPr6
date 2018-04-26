@@ -2,9 +2,10 @@ package es.ucm.model;
 
 import es.ucm.sim.Simulator.UpdateEvent;
 
+/*
+ * Lo implementan las clases que se "suscriben" al simulador
+ */
 public interface SimulatorListener {
-	
-	//void update(UpdateEvent ue, String error);
 
 	void registered(UpdateEvent ue);
 	void reset(UpdateEvent ue);

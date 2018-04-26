@@ -11,9 +11,7 @@ import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
 /*
- * "Mi mujer ha muerto. Soy libre."
- * 
- * 		Charles Baudelaire
+ * Evento para nueva bicicleta
  */
 
 public class NewBikeE extends NewVehicleE{
@@ -22,7 +20,9 @@ public class NewBikeE extends NewVehicleE{
 		super(time, maxV, itinerary, id);
 	}
 	
-	public void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException {
+	public void ejecuta(Simulator s, ArrayList<Junction> js, 
+			ArrayList<Road> rs, ArrayList<Vehicle> vs)
+					throws MissingObjectExc, IdException {
 		if(done) return;
 		Bike b = new Bike(maxV, super.createIt(s), id);
 		vs.add(b);

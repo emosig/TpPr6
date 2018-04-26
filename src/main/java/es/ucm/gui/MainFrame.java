@@ -35,6 +35,10 @@ import es.ucm.fdi.util.MyTextEditor;
 import es.ucm.model.SimulatorListener;
 import es.ucm.sim.Simulator.UpdateEvent;
 
+/*
+ * Clase principal de la vista del simulador. La llamada al controlador
+ * se hace desde aquí si se ejecuta el modo GUI
+ */
 public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private Controller ctrl;
@@ -58,11 +62,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private JSplitPane mainSplit;
 	
 	private File currentFile;
-	private JMenu fileMenu; 
-	private JMenu simMenu; 
-	private JMenu reportsMenu; 
-	private JFileChooser chooser; 
-	private File file;
+
 	
 	private static final Dimension MINSIZE = new Dimension(100, 60);
 	
@@ -79,8 +79,13 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		initGUI();
 	}
 	
-	//muchos métodos de uso interno en initGUI
+	/*
+	 * MÉTODOS DE USO INTERNO EN initGUI()
+	 */
 	
+	/*
+	 * Configuración de borde
+	 */
 	private void border(String title, JComponent comp) {
 		TitledBorder border = new TitledBorder(title);
 	    border.setTitleJustification(TitledBorder.LEFT);
@@ -88,17 +93,27 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	    comp.setBorder(border);
 	}
 	
+	/*
+	 * Configura los componentes scrollables
+	 */
 	private void scroll(JScrollPane sp) {
 		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		sp.setHorizontalScrollBarPolicy(
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
 	
+	/*
+	 * Inicializa el editor de eventos
+	 */
 	private void initEvEditor() {
 		evEditor = new MyTextEditor();
 		border(new StringBuilder("Events: ").append(evEditor.getName())
 				.toString(), evEditor);
 	}
 	
+	/*
+	 * Inicializa la cola de eventos
+	 */
 	private void initEvQueue(List<Event> e) throws SimulatorExc {
 		evQueueTable = new MyTable(e);
 		evQueue = new JScrollPane(evQueueTable);
@@ -106,6 +121,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		scroll(evQueue);
 	}
 	
+	/*
+	 * Inicializa el área de reports
+	 */
 	private void initReportsArea() {
 		JPanel reportsAreaAux = new JPanel();
 		border("Reports Area", reportsAreaAux);
@@ -120,10 +138,15 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		
 	}
 	
-	//He intentado hacer una función para no repetir código
-	//en los procedimientos que init(algo)Table, pero por alguna
-	//razón falla al instanciar JScrollPane en un método aparte
+	/*
+	 * He intentado hacer una función para no repetir código
+	 * en los procedimientos que init(algo)Table, pero por alguna
+	 * razón falla al instanciar JScrollPane en un método aparte
+	 */
 	
+	/*
+	 * Inicializa las tablas de objetos
+	 */
 	private void initVTable() throws SimulatorExc {
 		MyTable vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
 		vehicles = new JScrollPane(vehiclesTable);
@@ -146,6 +169,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		
 	}
 	
+	/*
+	 * Inicializa el roadmap gráfico
+	 */
 	private void initMap() throws SimulatorExc {
 		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
 		map.setMaximumSize(new Dimension(50, 50));
@@ -254,8 +280,8 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		upperSplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, upperSplit1, reportsArea);
 		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, map);
 		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
-		//para redimensionamiento automático
 		
+		//para redimensionamiento automático
 		for (JSplitPane p : new JSplitPane[] {
 				tableSplit1, tableSplit2, upperSplit1, upperSplit2, bottomSplit, mainSplit}) {
 			p.setResizeWeight(.5);
@@ -309,8 +335,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		} catch (SimulatorExc e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}
-		
+		}	
 	}
 
 	@Override

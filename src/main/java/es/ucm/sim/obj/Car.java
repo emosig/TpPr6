@@ -6,12 +6,7 @@ import java.util.Map;
 import java.util.Random;
 
 /*
- * 		"Si abrí los labios para ver el rostro
- * puro y terrible de mi patria
- * si abrí los labios hasta desgarrármelos
- * me queda la palabra."
- * 
- * 		Blas de Otero
+ * 	Coche
  */
 public class Car extends Vehicle{
 	
@@ -24,7 +19,8 @@ public class Car extends Vehicle{
 		return kilometrage() - lastFaultKm;
 	}
 	
-	public Car(int resistance, double faultP, int maxFault, long seed, int vMax, ArrayList<Road> it, String id) {
+	public Car(int resistance, double faultP, int maxFault, long seed, 
+			int vMax, ArrayList<Road> it, String id) {
 		super(vMax, it, id);
 		resistKm = resistance;
 		this.maxFault = maxFault;

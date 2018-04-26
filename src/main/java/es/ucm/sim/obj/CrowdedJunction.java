@@ -12,12 +12,7 @@ import es.ucm.sim.obj.Junction.RoadEnd;
 public class CrowdedJunction extends Junction {
 	
 	/*
-	 * 		"Nunca me ha gustado que me comprendiesen.
-	 * Ser comprendido es prostituirse. Prefiero ser tomado en serio
-	 * como lo que no soy, ignorado humanamente con decencia
-	 * y naturalidad.
-	 * 
-	 * 		Fernando Pessoa
+	 * 	Cruce concurrido
 	 */
 
 	private static class MCRoadEnd extends RoadEnd{
@@ -69,7 +64,7 @@ public class CrowdedJunction extends Junction {
 		return inc;
 	}
 	
-	public void entraVehiculo(Vehicle v) { //getroad devuelve el id de la carretera
+	public void entraVehiculo(Vehicle v) {
 		if(getIncomingV().contains(v)) return;
 		myIncomingRoad.get(v.getRoad()).arrive(v);
 	}
@@ -78,11 +73,17 @@ public class CrowdedJunction extends Junction {
 		return myIncomingRoad.get(idroad).leave();
 	}
 	
-	public void addRoad(Road r) {	//Cuando se crea una carretera que tiene este cruce como final
+	/*
+	 * Cuando se crea una carretera que tiene este cruce como final
+	 */
+	public void addRoad(Road r) {	
 		myIncomingRoad.put(r.getId(), new MCRoadEnd(r.getId()));
 	}
 	
-	protected void avanzaSem() { //saco esto de avanza() para no repetir código en clases heredadas
+	/*
+	 * saco esto de avanza() para no repetir código en clases heredadas
+	 */
+	protected void avanzaSem() { 
 		MCRoadEnd prioridad = null;
 		int max = -1; //si todas están vacías se queda con la primera
 		for(MCRoadEnd e: myIncomingRoad.values()) {
@@ -106,14 +107,17 @@ public class CrowdedJunction extends Junction {
 			//caso inicial
 			if(greenId == null) {	
 				myIncomingRoad.lastEntry().getValue().changeTrfLight();
-				myIncomingRoad.lastEntry().getValue().setIntervalo(Integer.max(myIncomingRoad.lastEntry().getValue().getQueue().size() / 2, 1));
+				myIncomingRoad.lastEntry().getValue().setIntervalo(
+						Integer.max(myIncomingRoad.lastEntry().getValue()
+								.getQueue().size() / 2, 1));
 				greenId = myIncomingRoad.lastKey();
 			}
 			//A partir de aquí greenId está siempre forzosamente definido
 			if(!myIncomingRoad.get(greenId).isEmpty())
 				saleVehiculo(greenId).moverASiguienteCarretera();
 			//avanzar los semáforos si ha pasado el intervalo de tiempo
-			if(myIncomingRoad.get(greenId).getIntervalo() == myIncomingRoad.get(greenId).getUTiempo())
+			if(myIncomingRoad.get(greenId).getIntervalo() 
+					== myIncomingRoad.get(greenId).getUTiempo())
 				avanzaSem();
 			else myIncomingRoad.get(greenId).increaseT();
 		}
@@ -124,10 +128,13 @@ public class CrowdedJunction extends Junction {
 			StringBuilder sb = new StringBuilder();
 			for(String id : myIncomingRoad.keySet()) { 
 				String color;
-				if(id.equals(greenId)) color = "green:" + myIncomingRoad.get(id).getUTiempo(); //null-safe
+				if(id.equals(greenId)) color = "green:" 
+				+ myIncomingRoad.get(id).getUTiempo(); //null-safe
 				else color  = "red";
-				//creo lista de cosas que van a ir separadas por coma spara evitar concatenaciones y appends excesivos
-				String[] toAppend = {"(" + id, color, myIncomingRoad.get(id).vqueueToString() + ")"};
+				//creo lista de cosas que van a ir separadas por coma 
+				//para evitar concatenaciones y appends excesivos
+				String[] toAppend = {"(" + id, color, 
+						myIncomingRoad.get(id).vqueueToString() + ")"};
 				for(String s: toAppend)
 					sb.append(s).append(',');
 			}

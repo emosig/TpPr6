@@ -14,7 +14,13 @@ import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumnModel;
 
+/*
+ * Componente de swing para mostrar tablas con filas de DescribableEntity
+ */
 public class MyTable extends JPanel{
+	/*
+	 * Clase interna que hace las veces de TableModel
+	 */
 	private class MyTableModel extends AbstractTableModel{
 		
 		private String[] fieldNames;
@@ -25,11 +31,15 @@ public class MyTable extends JPanel{
 			this.elements = elements;
 			loadTable();
 		}
-		
+		/*
+		 * Método de primera carga de datos en la tabla
+		 */
 		private void loadTable() {
 			Map<String, String> data = new HashMap<>();
-			elements.get(0).describe(data); //solo para sacar los nombres de las columnas
-			fieldNames = data.keySet().toArray(new String[data.keySet().size()]);
+			//solo para sacar los nombres de las columnas
+			elements.get(0).describe(data); 
+			fieldNames = data.keySet().toArray(
+					new String[data.keySet().size()]);
 		}
 
 		@Override
@@ -63,7 +73,8 @@ public class MyTable extends JPanel{
 		tab.setAutoResizeMode(JTable.AUTO_RESIZE_OFF);
 		JScrollPane sp = new JScrollPane(tab);
 		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		sp.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		sp.setHorizontalScrollBarPolicy(
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		add(sp);
 	}
 	

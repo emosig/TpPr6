@@ -10,9 +10,7 @@ import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
 /*
- * "De pronto el templo es un circo y la luz un tambor"
- * 
- * 		Alejandra Pizarnik
+ * Clase abstracta que agrupa los eventos de creación de objetos
  */
 public abstract class NewObjE extends Event{
 	protected String id;
@@ -22,5 +20,7 @@ public abstract class NewObjE extends Event{
 		this.id = id;
 	}
 	
-	public abstract void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException;		
+	public abstract void ejecuta(Simulator s, ArrayList<Junction> js, 
+			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
+					throws MissingObjectExc, IdException;		
 }

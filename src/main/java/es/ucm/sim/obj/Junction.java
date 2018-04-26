@@ -9,17 +9,14 @@ import java.util.TreeMap;
 import es.ucm.fdi.exceptions.IdException;
 
 /*
- * "¿Qué pasa en la verde alameda?
- * Pues que no es verde
- * y que ni quiera hay una alameda."
- * 
- * 		Alejandra Pizarnik
+ * Cruce
  */
 public class Junction extends SimObj{
 	/*
 	 * Clase auxiliar para almacenar una cola de veliculos mas un semáforo
-	 * Los métodos son sobrecargas y modificaciones elementales de los habituales:
-	 * getters, setters(changeTrfLight), push, poll, toString, isEmpty...
+	 * Los métodos son sobrecargas y modificaciones elementales de los 
+	 * habituales: getters, setters(changeTrfLight), push, poll, 
+	 * toString, isEmpty...
 	 */
 	protected static class RoadEnd{
 		protected ArrayDeque<Vehicle> vqueue;
@@ -96,7 +93,7 @@ public class Junction extends SimObj{
 		return inc;
 	}
 	
-	public void entraVehiculo(Vehicle v) { //getroad devuelve el id de la carretera
+	public void entraVehiculo(Vehicle v) {
 		if(getIncomingV().contains(v)) return;
 		incomingRoad.get(v.getRoad()).arrive(v);
 	}
@@ -105,14 +102,23 @@ public class Junction extends SimObj{
 		return incomingRoad.get(idroad).leave();
 	}
 	
-	public void addRoad(Road r) {	//Cuando se crea una carretera que tiene este cruce como final
+	/*
+	 * Cuando se crea una carretera que tiene este cruce como final
+	 */
+	public void addRoad(Road r) {
 		incomingRoad.put(r.getId(), new RoadEnd(r.getId()));
 	}
 	
-	protected void avanzaSem() { //saco esto de avanza() para no repetir código en clases heredadas
-		incomingRoad.get(greenId).changeTrfLight(); // se apaga el semáfoto encendido
-		if(incomingRoad.tailMap(greenId).size() == 1) { //si la id de la carretera en verde es la mayor...
-			greenId = incomingRoad.firstKey(); //actualizar greenId
+	/*
+	 * //saco esto de avanza() para no repetir código en clases heredadas
+	 */
+	protected void avanzaSem() { 
+		// se apaga el semáfoto encendido
+		incomingRoad.get(greenId).changeTrfLight(); 
+		//si la id de la carretera en verde es la mayor...
+		if(incomingRoad.tailMap(greenId).size() == 1) {
+			//actualizar greenId
+			greenId = incomingRoad.firstKey(); 
 			incomingRoad.get(greenId).changeTrfLight();
 		}
 		else {
@@ -144,8 +150,10 @@ public class Junction extends SimObj{
 				String color;
 				if(id.equals(greenId)) color = "green"; //null-safe
 				else color  = "red";
-				//creo lista de cosas que van a ir separadas por coma spara evitar concatenaciones y appends excesivos
-				String[] toAppend = {"(" + id, color, incomingRoad.get(id).vqueueToString() + ")"};
+				//creo lista de cosas que van a ir separadas por coma para
+				//evitar concatenaciones y appends excesivos
+				String[] toAppend = {"(" + id, color, 
+						incomingRoad.get(id).vqueueToString() + ")"};
 				for(String s: toAppend)
 					sb.append(s).append(',');
 			}

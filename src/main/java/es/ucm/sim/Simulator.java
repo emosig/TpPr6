@@ -19,12 +19,7 @@ import es.ucm.model.SimulatorListener;
 import es.ucm.sim.obj.*;
 
 /*
- * 		"[]en la verdadera nieve
- * que es la nieve de junio
- * con flores y semillas
- * cuando no vas a morir nunca"
- * 
- * 		Inger Christensen
+ * 	Clase principal del simulador
  */
 public class Simulator {
 	
@@ -38,6 +33,9 @@ public class Simulator {
 		REGISTERED, RESET, NEW_EVENT, ADVANCED, ERROR
 	}
 	
+	/*
+	 * Clase interna para los eventos de la práctica 5
+	 */
 	public class UpdateEvent {
 		
 		private EventType type;
@@ -72,7 +70,8 @@ public class Simulator {
 	}
 	
 	public Simulator(int t) throws NegativeArgExc{
-		if(t <= 0) throw new NegativeArgExc("Pasos de simulación negativos o 0");
+		if(t <= 0) 
+			throw new NegativeArgExc("Pasos de simulación negativos o 0");
 		simTime = 0;
 		limit = t;
 		m = new RoadMap();
@@ -110,7 +109,9 @@ public class Simulator {
 		listeners.remove(l);
 	}
 	
-	// uso interno, evita tener que escribir el mismo bucle muchas veces
+	/*
+	 * uso interno, evita tener que escribir el mismo bucle muchas veces
+	 */
 	private void fireUpdateEvent(EventType type, String error) {
 		// envia un evento apropiado a todos los listeners
 		for(SimulatorListener l: listeners) {
@@ -141,11 +142,14 @@ public class Simulator {
 	}
 	
 	public void ejecuta(int steps, OutputStream out){
-		boolean escribe = out != null; //no lo voy a comprobar en cada vuelta del bucle
+		boolean escribe = out != null; 
+		//no lo voy a comprobar en cada vuelta del bucle
 		while(simTime < limit) {
+			
 			//1 ejecutar eventos
 			for(Event e: evs.innerValues()) {
-				if(!e.getDone() && e.getTime() == simTime) { //evita repetición de eventos
+				if(!e.getDone() && e.getTime() == simTime) { 
+					//evita repetición de eventos
 					ArrayList<Junction> js = new ArrayList<>();
 					ArrayList<Road> rs = new ArrayList<>();
 					ArrayList<Vehicle> vs = new ArrayList<>();
@@ -162,8 +166,10 @@ public class Simulator {
 					for(Vehicle v: vs) m.addVehicle(v);
 				}
 			}
+			
 			//2 avanzar carreteras
 			for(Road r: m.getRoads()) r.avanza();
+			
 			//3 avanzar cruces
 			for(Junction j: m.getJunctions()) {
 				try {
@@ -172,12 +178,11 @@ public class Simulator {
 					e2.printStackTrace();
 				}
 			}
+			
 			//4 incrementar t
 			++simTime;
-			
 				//advanced()
 			fireUpdateEvent(EventType.ADVANCED, null);
-			
 			
 			//5 escribir informe si out != null
 			if(escribe) {
@@ -194,22 +199,28 @@ public class Simulator {
 			}
 		}
 	}
+	
 	/*
 	 * Rellena un mapa con todas las keys
 	 */
-	private void writeReport(SimObj obj, OutputStream out) throws IOException {
+	private void writeReport(SimObj obj, OutputStream out) 
+			throws IOException {
 		Map<String, String> map = new HashMap<>();
 		obj.generaInforme(simTime, map);
 		sortTags(map, out);
 	}
+	
 	/*
-	 * Método auxiliar para garantizar el orden de los apartados de cada iniSection
+	 * Método auxiliar para garantizar el orden de los apartados 
+	 * de cada iniSection
 	 */
-	private void sortTags(Map<String, String> m, OutputStream out) throws IOException {
-		//Rellena la inisection con el map
-		IniSection is = new IniSection(m.get("")); //esta es la key del report header
+	private void sortTags(Map<String, String> m, OutputStream out) 
+			throws IOException {
+		//esta es la key del report header
+		IniSection is = new IniSection(m.get("")); 
 		m.remove("");
-		//reference proporciona el orden de los distintos campos a la hora de hacer reports
+		//reference proporciona el orden de los distintos campos a la hora 
+		//de hacer reports
 		String[] tagOrder = {
 				"id", "time", "queues", "type", "speed", 
 				"kilometrage", "faulty", "location", "state", 
@@ -217,7 +228,8 @@ public class Simulator {
 		Map<Integer, String> reference = new HashMap<>();
 		for(int i = 0; i < tagOrder.length; ++i)
 			reference.put(i, tagOrder[i]);
-		//Ahora recorro reference y meto en out solo los mappings cuya key existe en m
+		//Ahora recorro reference y meto en out solo los mappings 
+		//cuya key existe en m
 		for(int j = 0; j < reference.size();++j) {
 			String key = m.get(reference.get(j));
 			if(key != null) is.setValue(reference.get(j), key);

@@ -22,7 +22,9 @@ import es.ucm.sim.RoadMap;
 import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
 
-
+/*
+ * Componente de swing para el roadmap gráfico
+ */
 public class RoadMapGraph extends JPanel{
 	private GraphComponent _graphComp;
 	private RoadMap rm;

@@ -8,12 +8,23 @@ import java.util.Map;
 import es.ucm.fdi.exceptions.IdException;
 
 /*
- * 		"No hay gusto más descansado
- * que después de haber cagado"
- * 
- * 		Franciso de Quevedo
+ * 	Vehículo
  */
 public class Vehicle extends SimObj{
+	
+	/*
+	 * Me creo un comparador para que se ordenen los vehículos como yo quiero
+	 */
+	public static class VehicleComparator implements Comparator<Vehicle>{
+
+		@Override
+		public int compare(Vehicle o1, Vehicle o2) {
+			if(o1.getLoc() == o2.getLoc())
+				return o1.getId().compareToIgnoreCase(o2.getId());
+			else return o2.getLoc() - o1.getLoc();
+		}
+	} 
+	
 	private int localizacion;
 	private ArrayList<Road> itinerario;
 	private int posItinerario; //número de carretera
@@ -23,7 +34,8 @@ public class Vehicle extends SimObj{
 	protected int tAveria;
 	protected int kilometrage() {
 		int k = 0;
-		for(int i = 0; i < posItinerario; ++i) k+= itinerario.get(i).getLong();
+		for(int i = 0; i < posItinerario; ++i) 
+			k+= itinerario.get(i).getLong();
 		k += localizacion;
 		return k;
 	}
@@ -71,7 +83,8 @@ public class Vehicle extends SimObj{
 		else velActual = velMaxima;
 	}
 	/*
-	 * La cola que incluyo como parámetro es para hacer salir los vehiculos sin romper el iterador innerValues en la carretera
+	 * La cola que incluyo como parámetro es para hacer salir los 
+	 * vehiculos sin romper el iterador innerValues en la carretera
 	 */
 	public void avanza(List<Vehicle> queue) {
 		if(tAveria > 0) {
@@ -82,15 +95,19 @@ public class Vehicle extends SimObj{
 		else {
 			localizacion += velActual;
 			if(itinerario.get(posItinerario).getLong() <= localizacion) {
-				localizacion = itinerario.get(posItinerario).getLong(); //localizacion al final de la carretera
-				queue.add(this); //se apunta en la cola para salir de la caretera
-				itinerario.get(posItinerario).getFinalJ().entraVehiculo(this); //entra en cruce
+				//localizacion al final de la carretera
+				localizacion = itinerario.get(posItinerario).getLong(); 
+				//se apunta en la cola para salir de la caretera
+				queue.add(this); 
+				//entra en cruce
+				itinerario.get(posItinerario).getFinalJ().entraVehiculo(this); 
 				velActual = 0;
 			}
 		}
 	}
 	/*
-	 * Comprueba si al salir de la carretera acaba su recorrido, y si no pasa a la siguiente carretera
+	 * Comprueba si al salir de la carretera acaba su recorrido, y si no pasa 
+	 * a la siguiente carretera
 	 */
 	public void moverASiguienteCarretera() throws IdException {
 		if(posItinerario + 1 == itinerario.size()) {
@@ -105,7 +122,9 @@ public class Vehicle extends SimObj{
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
 		if(haLlegado) out.put("location", "arrived");
-		else out.put("location", new StringBuilder().append('(').append(itinerario.get(posItinerario).getId()).append(',').append(localizacion).append(')').toString());
+		else out.put("location", new StringBuilder().append('(')
+				.append(itinerario.get(posItinerario).getId()).append(',')
+				.append(localizacion).append(')').toString());
  		out.put("speed", String.valueOf(velActual));
 		out.put("faulty", String.valueOf(tAveria));
 		out.put("kilometrage", String.valueOf(kilometrage()));
@@ -116,16 +135,7 @@ public class Vehicle extends SimObj{
 	protected String getReportHeader() {
 		return "vehicle_report";
 	}
-	public static class VehicleComparator implements Comparator<Vehicle>{
-
-		@Override
-		//está hecho para que se ordenen como en los ejemplos
-		public int compare(Vehicle o1, Vehicle o2) {
-			if(o1.getLoc() == o2.getLoc())
-				return o1.getId().compareToIgnoreCase(o2.getId());
-			else return o2.getLoc() - o1.getLoc();
-		}
-	}
+	
 	@Override
 	protected void describeFurther(Map<String, String> out) {
 		out.put("Road", itinerario.get(posItinerario).getId());

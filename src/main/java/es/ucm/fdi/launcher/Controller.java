@@ -12,10 +12,8 @@ import es.ucm.fdi.ini.IniSection;
 import es.ucm.sim.Simulator;
 
 /*
- * 		"Fue entonces
- * Y la tierra despertó arrojando tembolorosos ríos de polilla"
- * 
- * 		Federico García Lorca
+ * 	Clase principal del modelo, llamada desde el main. Llama al simulador
+ * 	en el método run() y lleva la cuenta de pasos de la simulación
  */
 public class Controller {
 	private Simulator sim;
@@ -23,14 +21,18 @@ public class Controller {
 	private OutputStream out;
 	private int ticks;
 	
-	//Constructura para modo batch
+	/*
+	 * Constructura para modo batch
+	 */
 	public Controller(InputStream in, OutputStream out, int ticks) {
 		this.in = in;
 		this.out = out;
 		this.ticks = ticks;
 	}
 	
-	//Constructora para modo GUI
+	/*
+	 * Constructora para modo GUI
+	 */
 	public Controller(InputStream in, int initialTicks) throws NegativeArgExc {
 		if(in != null) this.in = in;
 		ticks = initialTicks;
@@ -60,7 +62,8 @@ public class Controller {
 			 for(EventBuilder eb: traducc) {
 				 Event evt = eb.parse(is);
 				 if(evt != null) 
-					 //si no coincide con ningún nombre, no se inserta en ningún sitio y a correr
+					 //si no coincide con ningún nombre, 
+					 //no se inserta en ningún sitio y a correr
 					 sim.insertaEvento(evt);
 			 }
 	}

@@ -43,12 +43,16 @@ public class PopUpMenuExample extends JFrame {
 	}
 
 	private void addEditor() {
-		_mainPanel.add(new JLabel("Right click over the text-area to get the popup menu."),BorderLayout.PAGE_START);
+		_mainPanel.add(new JLabel(
+				"Right click over the text-area to get the popup menu."),
+				BorderLayout.PAGE_START);
 
 		_editor = new JTextArea(20, 20);
 
-		_mainPanel.add(new JScrollPane(_editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
-				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), BorderLayout.CENTER);
+		_mainPanel.add(new JScrollPane(
+				_editor, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), 
+				BorderLayout.CENTER);
 
 		// create the events pop-up menu
 		JPopupMenu _editorPopupMenu = new JPopupMenu();
@@ -107,7 +111,8 @@ public class PopUpMenuExample extends JFrame {
 
 			private void showPopup(MouseEvent e) {
 				if (e.isPopupTrigger() && _editorPopupMenu.isEnabled()) {
-					_editorPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+					_editorPopupMenu.show(e.getComponent(), e.getX(), 
+							e.getY());
 				}
 			}
 

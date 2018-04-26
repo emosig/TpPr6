@@ -59,7 +59,8 @@ public class GraphLayoutExample extends JFrame  {
 				t = (t + 1) % numNodes;
 			}
 			int l = _rand.nextInt(30)+20;
-			Edge e = new Edge("e"+i, g.getNodes().get(s), g.getNodes().get(t), l);
+			Edge e = new Edge("e"+i, g.getNodes().get(s), 
+					g.getNodes().get(t),l);
 			
 			int numDots = _rand.nextInt(5);
 			for(int j=0; j<numDots; j++) {

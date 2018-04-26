@@ -4,11 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 
 /*
- * 		"¿Qué esfinge de cemento y aluminio abrió sus cráneos y devoró sus cerebros y su imaginación?
- * ¡Moloch!¡Soledad!¡Inmundicia!¡Ceniceros y dólares inalcanzables!¡Niños gritando bajo las escaleras!
- * ¡Muchachos sollozando en ejércitos!¡Ancianos llorando en los parques!
- * 
- * 		Allen Ginsberg
+ * 	Bicicleta
  */
 public class Bike extends Vehicle{
 

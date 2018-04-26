@@ -13,15 +13,16 @@ import es.ucm.sim.obj.Road;
 import es.ucm.sim.obj.Vehicle;
 
 /*
- * "Tú eres todo lo que no es la vida; lo que de bueno y de hermoso los sueños dejan y no existe"
- * 
- * 		Fernando Pessoa
+ * Clase abstracta con métodos y atributos comunes a todos los eventos
  */
 
 public abstract class Event extends DescribableEntity{
 	protected int time;
 	protected final String name;
-	protected boolean done; //se pone a true al ejecutar y garantiza la no repetición de eventos
+	/*
+	 *se pone a true al ejecutar y garantiza la no repetición de eventos
+	 */
+	protected boolean done;
 	
 	public Event(int time, String name) {
 		this.time = time;
@@ -48,8 +49,17 @@ public abstract class Event extends DescribableEntity{
 	}
 	
 	/*
-	 * Los parámetros js, rs, vs son listas de objetos a añadir
+	 * Ejecución del evento
+	 * 
+	 * @param js  - lista de cruces que hay que añadir
+	 * @param rs  - lista de cruces que hay que añadir
+	 * @param vs  - lista de cruces que hay que añadir
 	 */
-	public abstract void ejecuta(Simulator s, ArrayList<Junction> js, ArrayList<Road> rs, ArrayList<Vehicle> vs) throws MissingObjectExc, IdException;
+	public abstract void ejecuta(Simulator s, ArrayList<Junction> js,
+			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
+					throws MissingObjectExc, IdException;
+	/*
+	 * Continua el método describe() para cada Describable Entity en concreto
+	 */
 	protected abstract void describeFurther(Map<String, String> out);
 }

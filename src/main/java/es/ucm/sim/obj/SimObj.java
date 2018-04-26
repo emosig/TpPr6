@@ -6,13 +6,7 @@ import es.ucm.fdi.util.Describable;
 import es.ucm.fdi.util.DescribableEntity;
 
 /*
- * 		"Como si fueran niños en los cuentos
- * de la infancia escuchan a los vientos contarles
- * de los campos quemados
- * pero no son niños
- * ya no hay quien los lleve en brazos"
- * 
- * 		Inger Christensen
+ * 	Clase abstracta que aglutina todos los objetos de la simulación
  */
 public abstract class SimObj extends DescribableEntity{
 	protected String id;

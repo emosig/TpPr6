@@ -46,7 +46,8 @@ public class DialogWindowExample extends JFrame  {
 					for(String s : _dialog.getSelectedItems()) {
 						System.out.println(s);
 					}
-					System.out.println("The following numbers where selected:");
+					System.out.println(
+							"The following numbers where selected:");
 					for(Integer s : _dialog.getSelectedNums()) {
 						System.out.println(s);
 					}
@@ -54,7 +55,8 @@ public class DialogWindowExample extends JFrame  {
 			}
 		});
 		mainPanel.add(here);
-		mainPanel.add(new JLabel("a dialog window is opened and the main window blocks."));
+		mainPanel.add(new JLabel(
+				"a dialog window is opened and the main window blocks."));
 
 		this.setContentPane(mainPanel);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

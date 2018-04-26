@@ -16,17 +16,20 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 
+/*
+ * Componente de swing editor de texto
+ */
 public class MyTextEditor extends JPanel{
 	
 	private JTextArea textArea;
 	private JFileChooser fc;
-	private InputStream in;
+	//private InputStream in;
 	private PrintWriter out;
 	
-	private boolean modif;
+	//private boolean modif;
 	private String fileName;
 	
-	public MyTextEditor(/*String title*/) {
+	public MyTextEditor() {
 		super(new BorderLayout());
 		fileName = "";
 		initTextEd();

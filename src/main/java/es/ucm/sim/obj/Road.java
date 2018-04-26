@@ -9,19 +9,14 @@ import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.util.MultiTreeMap;
 
 /*
- * 		"Al volver la vista atrás
- * se ve la senda que nunca
- * se ha de volver a pisar.
- * Caminante, no hay camino
- * sino estelas en la mar.
- * 
- * 		Antonio Machado
+ * 	Carretera
  */
 public class Road extends SimObj{
 	protected MultiTreeMap<Integer, Vehicle> vehiculos;
 	protected int velocidadMax;
 	protected int velocidadBase;
-	//cola auxiliar para sacar coches de la carretera sin romper el iterador de multitreemap
+	//cola auxiliar para sacar coches de la carretera sin romper el 
+	//iterador de multitreemap
 	protected List<Vehicle> abandonQueue = new ArrayList<>();
 	private int longitud;
 	private Junction iniJ, finalJ;
@@ -32,7 +27,8 @@ public class Road extends SimObj{
 		return 1;
 	}
 	
-	public Road(int vMax, int length, Junction iniJ, Junction finalJ, String id) {
+	public Road(int vMax, int length, Junction iniJ, Junction finalJ, 
+			String id) {
 		super(id);
 		velocidadMax = vMax;
 		longitud = length;
@@ -69,7 +65,7 @@ public class Road extends SimObj{
 		vehiculos.putValue(0, v);
 	}
 	public boolean saleVehiculo(Vehicle v) {
-		
+
 		/*
 		 * "Es la hora de partir. Oh abandonado!"
 		 * 		
@@ -94,7 +90,8 @@ public class Road extends SimObj{
 	}
 	
 	public void avVehicles() {
-		//empleo la cola auxiliar abandonQueue para no "romper" vehiculos mientras está iterando
+		//empleo la cola auxiliar abandonQueue para no "romper" vehiculos 
+		//mientras está iterando
 		for(Vehicle v: vehiculos.innerValues()) {
 			if(v.getTAveria() == 0) 
 				v.setVelocidadActual(velocidadBase/factorReducc(v));
@@ -115,7 +112,8 @@ public class Road extends SimObj{
 		if(!vehiculos.isEmpty()) {
 			StringBuilder sb = new StringBuilder();
 			for(Vehicle v : sortVehicles()) 
-				sb.append('(').append(v.getId()).append(',').append(v.getLoc()).append("),");	
+				sb.append('(').append(v.getId()).append(',')
+				.append(v.getLoc()).append("),");	
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("state", String.join(",", sb));
 		}
