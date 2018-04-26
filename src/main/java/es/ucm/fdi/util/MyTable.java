@@ -46,7 +46,7 @@ public class MyTable extends JPanel{
 		public int getRowCount() {
 			return elements.size();
 		}
-
+		
 		@Override
 		public String getValueAt(int rowIndex, int columnIndex) {
 			Map<String, String> data = new HashMap<>();

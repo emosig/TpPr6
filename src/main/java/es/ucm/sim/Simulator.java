@@ -94,9 +94,7 @@ public class Simulator {
 	
 	public boolean insertaEvento(Event e) {
 		if(e.getTime() < simTime) return false;
-		
 		fireUpdateEvent(EventType.NEW_EVENT, "");
-		
 		evs.putValue(e.getTime(), e);
 		return true;
 	}

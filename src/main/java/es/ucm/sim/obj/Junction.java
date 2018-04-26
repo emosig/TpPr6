@@ -187,8 +187,8 @@ public class Junction extends SimObj{
 			}
 			sbRe.setLength(sbRe.length() - 1);  //borra última coma
 			sbGr.setLength(sbGr.length() - 1);
-			sbRe.append(")");
-			sbGr.append(")");
+			if(sbRe.charAt(sbRe.length() - 1) != '[') sbRe.append(")");
+			if(sbGr.charAt(sbGr.length() - 1) != '[') sbGr.append(")");
 		}
 		sbRe.append("]");
 		sbGr.append("]");

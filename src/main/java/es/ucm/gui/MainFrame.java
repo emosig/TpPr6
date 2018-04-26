@@ -5,7 +5,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.KeyEvent;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
+import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
@@ -22,25 +24,31 @@ import javax.swing.JToolBar;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
+import com.sun.javafx.event.EventQueue;
+
 import es.ucm.fdi.control.SimulatorAction;
+import es.ucm.fdi.events.Event;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.launcher.Controller;
 import es.ucm.fdi.util.MyTable;
+import es.ucm.fdi.util.MyTextEditor;
 import es.ucm.model.SimulatorListener;
 import es.ucm.sim.Simulator.UpdateEvent;
 
-public class MainFrame extends JFrame {
+public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private Controller ctrl;
 	private OutputStream reportsOutputStream;
 	
-	private JScrollPane evEditor;
+	private MyTextEditor evEditor;
 	private JScrollPane evQueue; 
 	private JScrollPane reportsArea; 
 	private JScrollPane vehicles;
 	private JScrollPane roads;
 	private JScrollPane junctions;
 	private RoadMapGraph map;
+	
+	private MyTable evQueueTable;
 	
 	private JSplitPane tableSplit1;
 	private JSplitPane tableSplit2;
@@ -86,15 +94,13 @@ public class MainFrame extends JFrame {
 	}
 	
 	private void initEvEditor() {
-		JTextArea evEditorAux = new JTextArea();
-		border("Events Editor", evEditorAux);
-		evEditorAux.setMinimumSize(MINSIZE);
-		evEditor = new JScrollPane(evEditorAux);
-		scroll(evEditor);
+		evEditor = new MyTextEditor();
+		border(new StringBuilder("Events: ").append(evEditor.getName())
+				.toString(), evEditor);
 	}
 	
-	private void initEvQueue() throws SimulatorExc {
-		MyTable evQueueTable = new MyTable(ctrl.getSim().getEventQueue());
+	private void initEvQueue(List<Event> e) throws SimulatorExc {
+		evQueueTable = new MyTable(e);
 		evQueue = new JScrollPane(evQueueTable);
 		border("Events Queue", evQueue);
 		scroll(evQueue);
@@ -142,37 +148,7 @@ public class MainFrame extends JFrame {
 	
 	private void initMap() throws SimulatorExc {
 		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
-	}
-	
-	private void initMenu() {
-		//Creación menú
-		JMenuBar menu = new JMenuBar();
-		menu.add(fileMenu = new JMenu("File"));
-		menu.add(simMenu = new JMenu("Simulator"));
-		menu.add(reportsMenu = new JMenu("Reports"));
-		
-		JMenuItem fileItem1 = new JMenuItem("Load Events");
-		fileMenu.add(fileItem1);
-		JMenuItem fileItem2 = new JMenuItem("Save Events");
-		fileMenu.add(fileItem2);
-		fileMenu.addSeparator();
-		JMenuItem fileItem3 = new JMenuItem("Save Report");
-		fileMenu.add(fileItem3);
-		fileMenu.addSeparator();
-		JMenuItem fileItem4 = new JMenuItem("Exit");
-		fileMenu.add(fileItem4);
-		JCheckBoxMenuItem simItem1 = new JCheckBoxMenuItem("Run");
-		simMenu.add(simItem1);
-		JCheckBoxMenuItem simItem2 = new JCheckBoxMenuItem("Reset");
-		simMenu.add(simItem2);
-		JCheckBoxMenuItem simItem3 = new JCheckBoxMenuItem("Redirect Output");
-		simMenu.add(simItem3);
-		JMenuItem reportsItem1 = new JMenuItem("Generate");
-		reportsMenu.add(reportsItem1);
-		JMenuItem reportsItem2 = new JMenuItem("Clear");
-		reportsMenu.add(reportsItem2);
-		
-		this.getRootPane().setJMenuBar(menu);
+		map.setMaximumSize(new Dimension(50, 50));
 	}
 	
 	/*
@@ -187,11 +163,18 @@ public class MainFrame extends JFrame {
 		SimulatorAction save = new SimulatorAction(
 				"Save Events", "save.png", "Save changes",
 				KeyEvent.VK_S, "control S", 
-				()-> System.err.println("saving..."));
+				()-> {
+					try {
+						evEditor.save();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 		SimulatorAction load = new SimulatorAction(
 				"Load Events", "open.png", "Load events from file",
 				KeyEvent.VK_L, "control L", 
-				()-> System.err.println("loading..."));
+				()-> evEditor.load());
 		SimulatorAction saveRe = new SimulatorAction(
 				"Save Report", "save_report.png", "Save current report",
 				KeyEvent.VK_R, "control R", 
@@ -204,10 +187,6 @@ public class MainFrame extends JFrame {
 				"Reset", "reset.png", "Reset simulation",
 				KeyEvent.VK_W, "control W", 
 				()-> System.err.println("reseting..."));
-		SimulatorAction redirect = new SimulatorAction(
-				"Redirect Output", "report.png", "Save current report",
-				KeyEvent.VK_D, "control D", 
-				()-> System.err.println(""));
 		SimulatorAction generate = new SimulatorAction(
 				"Generate", "report.png", "Generate report",
 				KeyEvent.VK_G, "control G", 
@@ -215,17 +194,18 @@ public class MainFrame extends JFrame {
 		SimulatorAction clear = new SimulatorAction(
 				"Clear", "clear.png", "Clear reports area",
 				KeyEvent.VK_F, "control F", 
-				()-> System.err.println("clearing..."));
+				()-> evEditor.clear());
 
 		// add actions to toolbar, and bar to window
 		JToolBar bar = new JToolBar();
 		for(SimulatorAction a: new SimulatorAction[] {
-				exit, save, load, saveRe, run, reset, redirect,
+				exit, save, load, saveRe, run, reset,
 				generate, clear})
 			bar.add(a);
 		getContentPane().add(bar, BorderLayout.NORTH);
 
 		// add actions to menubar, and bar to window
+		
 		JMenu file = new JMenu("File");
 		file.add(load);		
 		file.add(save);		
@@ -237,7 +217,6 @@ public class MainFrame extends JFrame {
 		JMenu sim = new JMenu("Simulator");
 		sim.add(run);		
 		sim.add(reset);		
-		sim.add(redirect);
 		
 		JMenu rep = new JMenu("Reports");
 		rep.add(generate);	
@@ -255,13 +234,19 @@ public class MainFrame extends JFrame {
 	 */
 	private void initGUI() throws SimulatorExc {
 		initEvEditor();
-		initEvQueue();
+		initEvQueue(ctrl.getSim().getEventQueue());
 		initReportsArea();
 		initVTable();
 		initRTable();
 		initJunTable();
 		initMap();
 		addBars();
+		
+		/*for(JComponent c: new JComponent[] { por alguna razón esto bloquea vehicles
+				evEditor, evQueue, reportsArea, vehicles, roads, junctions}){
+			c.setMinimumSize(new Dimension(240, 140));
+		}*/
+		
 		
 		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehicles, roads); //implementar splitpane ternarios?
 		upperSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueue);
@@ -270,6 +255,7 @@ public class MainFrame extends JFrame {
 		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, map);
 		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
 		//para redimensionamiento automático
+		
 		for (JSplitPane p : new JSplitPane[] {
 				tableSplit1, tableSplit2, upperSplit1, upperSplit2, bottomSplit, mainSplit}) {
 			p.setResizeWeight(.5);
@@ -290,54 +276,51 @@ public class MainFrame extends JFrame {
 		});
 		
 		
-		/*
-		bottomSplit.setBackground(Color.blue);
-		upperSplit2.setBackground(Color.red);
-		upperSplit1.setBackground(Color.green);
-		tableSplit2.setBackground(Color.black);
-		tableSplit1.setBackground(Color.magenta);
-		mainSplit.setBackground(Color.yellow);
-		
-		this.add(chooser = new JFileChooser());
-		*/
-		
-		this.setLayout(new BorderLayout());
-		this.setContentPane(mainSplit);
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		Dimension max = new Dimension(500, 500);
+		map.setMaximumSize(max);
+	
+		setLayout(new BorderLayout());
+		setContentPane(mainSplit);
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		pack();
-		this.setSize(720, 480);
-		this.setVisible(true);
+		setSize(720, 480);
+		setVisible(true);
+	}
+	
+	/*
+	 * MÉTODOS DE SIMULATOR LISTENER
+	 */
+	@Override
+	public void registered(UpdateEvent ue) {
+		// TODO Auto-generated method stub
+		
 	}
 
-	private SimulatorListener listener = new SimulatorListener() {
-		@Override
-		public void registered(UpdateEvent ue) {
-			// TODO Auto-generated method stub
-			
+	@Override
+	public void reset(UpdateEvent ue) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void newEvent(UpdateEvent ue) {
+		try {
+			initEvQueue(ue.getEventQueue());
+		} catch (SimulatorExc e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
-	
-		@Override
-		public void reset(UpdateEvent ue) {
-			// TODO Auto-generated method stub
-			
-		}
-	
-		@Override
-		public void newEvent(UpdateEvent ue) {
-			// TODO Auto-generated method stub
-			
-		}
-	
-		@Override
-		public void advanced(UpdateEvent ue) {
-			// TODO Auto-generated method stub
-			
-		}
-	
-		@Override
-		public void error(UpdateEvent ue, String error) {
-			// TODO Auto-generated method stub
-			
-		}
-	};
+		
+	}
+
+	@Override
+	public void advanced(UpdateEvent ue) {
+		// TODO Auto-generated method stub
+		
+	}
+
+	@Override
+	public void error(UpdateEvent ue, String error) {
+		// TODO Auto-generated method stub
+	}
 }
