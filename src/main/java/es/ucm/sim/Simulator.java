@@ -129,6 +129,8 @@ public class Simulator {
 			case ERROR:
 				SwingUtilities.invokeLater(()->l.error(ue, error));
 				break;
+			default:
+				break;
 			}
 		}
 	}
@@ -141,62 +143,67 @@ public class Simulator {
 		evs = new MultiTreeMap<>();
 	}
 	
+	private void executeFurther(OutputStream out) {
+		//1 ejecutar eventos
+		for(Event e: evs.innerValues()) {
+			if(!e.getDone() && e.getTime() == simTime) { 
+				//evita repetición de eventos
+				ArrayList<Junction> js = new ArrayList<>();
+				ArrayList<Road> rs = new ArrayList<>();
+				ArrayList<Vehicle> vs = new ArrayList<>();
+				try {
+					e.ejecuta(this, js, rs, vs);
+				} catch (MissingObjectExc e1) {
+					e1.printStackTrace();
+				} catch (IdException e1) {
+					e1.printStackTrace();
+				}	
+				//añado objetos al roadmap
+				for(Junction j: js) m.addJunction(j);
+				for(Road r: rs) m.addRoad(r);
+				for(Vehicle v: vs) m.addVehicle(v);
+			}
+		}
+		
+		//2 avanzar carreteras
+		for(Road r: m.getRoads()) r.avanza();
+		
+		//3 avanzar cruces
+		for(Junction j: m.getJunctions()) {
+			try {
+				j.avanza();
+			} catch (IdException e2) {
+				e2.printStackTrace();
+			}
+		}
+		
+		//4 incrementar t
+		++simTime;
+			//advanced()
+		fireUpdateEvent(EventType.ADVANCED, null);
+		
+		//5 escribir informe si out != null
+		if(out != null) {
+			try {
+				for(SimObj j: m.getJunctions())
+					writeReport(j, out);
+				for(SimObj r: m.getRoads())
+					writeReport(r, out);
+				for(SimObj v: m.getVehicles())
+					writeReport(v, out);
+			} catch (IOException e1) {
+				System.out.println("Error en la escritura");
+			}
+		}
+	}
+	
+	public void ejecutaSteps(int steps, OutputStream out) {
+		for(int i = 0; i < steps; ++i) executeFurther(out);
+	}
+	
 	public void ejecuta(int steps, OutputStream out){
-		boolean escribe = out != null; 
-		//no lo voy a comprobar en cada vuelta del bucle
 		while(simTime < limit) {
-			
-			//1 ejecutar eventos
-			for(Event e: evs.innerValues()) {
-				if(!e.getDone() && e.getTime() == simTime) { 
-					//evita repetición de eventos
-					ArrayList<Junction> js = new ArrayList<>();
-					ArrayList<Road> rs = new ArrayList<>();
-					ArrayList<Vehicle> vs = new ArrayList<>();
-					try {
-						e.ejecuta(this, js, rs, vs);
-					} catch (MissingObjectExc e1) {
-						e1.printStackTrace();
-					} catch (IdException e1) {
-						e1.printStackTrace();
-					}	
-					//añado objetos al roadmap
-					for(Junction j: js) m.addJunction(j);
-					for(Road r: rs) m.addRoad(r);
-					for(Vehicle v: vs) m.addVehicle(v);
-				}
-			}
-			
-			//2 avanzar carreteras
-			for(Road r: m.getRoads()) r.avanza();
-			
-			//3 avanzar cruces
-			for(Junction j: m.getJunctions()) {
-				try {
-					j.avanza();
-				} catch (IdException e2) {
-					e2.printStackTrace();
-				}
-			}
-			
-			//4 incrementar t
-			++simTime;
-				//advanced()
-			fireUpdateEvent(EventType.ADVANCED, null);
-			
-			//5 escribir informe si out != null
-			if(escribe) {
-				try {
-					for(SimObj j: m.getJunctions())
-						writeReport(j, out);
-					for(SimObj r: m.getRoads())
-						writeReport(r, out);
-					for(SimObj v: m.getVehicles())
-						writeReport(v, out);
-				} catch (IOException e1) {
-					System.out.println("Error en la escritura");
-				}
-			}
+			executeFurther(out);
 		}
 	}
 	

@@ -3,10 +3,18 @@ package es.ucm.gui;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.event.ComponentAdapter;
+import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.util.List;
 
 import javax.swing.JCheckBoxMenuItem;
@@ -28,6 +36,7 @@ import com.sun.javafx.event.EventQueue;
 
 import es.ucm.fdi.control.SimulatorAction;
 import es.ucm.fdi.events.Event;
+import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.launcher.Controller;
 import es.ucm.fdi.util.MyTable;
@@ -53,6 +62,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private RoadMapGraph map;
 	
 	private MyTable evQueueTable;
+	private JTextArea reportTa;
 	
 	private JSplitPane tableSplit1;
 	private JSplitPane tableSplit2;
@@ -66,22 +76,36 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private static final Dimension MINSIZE = new Dimension(100, 60);
 	
-	public MainFrame(Controller ctrl, String inFileName) throws SimulatorExc {
+	public MainFrame(Controller ctrl, String inFileName) 
+			throws SimulatorExc, NegativeArgExc, IOException {
 		super("Traffic Simulator");
 		this.ctrl = ctrl;
-		ctrl.run();
+		ctrl.run(1, false);
 		currentFile = inFileName != null ? new File(inFileName) : null;
 		/*
 		reportsOutputStream = new JTextAreaOutputStream(reportsArea,null);
 		ctrl.setOutputStream(reportsOutputStream); 
 		*/
-		//sim.addSimulatorListener(this);
+		ctrl.getSim().addSimulatorListener(this);
 		initGUI();
+		
+		ctrl.keepRunningSteps(1);
 	}
 	
 	/*
 	 * MÉTODOS DE USO INTERNO EN initGUI()
 	 */
+	
+	private void saveReport() throws FileNotFoundException {
+		JFileChooser fc = new JFileChooser();
+		int r = fc.showSaveDialog(null);
+		if(r == JFileChooser.APPROVE_OPTION) {
+			PrintWriter out = new PrintWriter(fc.getSelectedFile());
+			out.print(reportTa.getText());
+			out.close();
+		}
+			
+	}
 	
 	/*
 	 * Configuración de borde
@@ -105,10 +129,16 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	/*
 	 * Inicializa el editor de eventos
 	 */
-	private void initEvEditor() {
+	private void initEvEditor() throws SimulatorExc {
 		evEditor = new MyTextEditor();
 		border(new StringBuilder("Events: ").append(evEditor.getName())
 				.toString(), evEditor);
+		updateEvs();
+		evEditor.append(ctrl.getEventsDisplay());
+	}
+	
+	private void updateEvs() throws SimulatorExc {
+		
 	}
 	
 	/*
@@ -124,18 +154,25 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	/*
 	 * Inicializa el área de reports
 	 */
-	private void initReportsArea() {
+	private void initReportsArea() throws IOException {
 		JPanel reportsAreaAux = new JPanel();
 		border("Reports Area", reportsAreaAux);
 		reportsAreaAux.setLayout(new BorderLayout());
-		JTextArea ta = new JTextArea();
-		ta.setEditable(false);
-		ta.append("test");///
-		reportsAreaAux.add(ta);
+		reportTa = new JTextArea();
+		reportTa.setEditable(false);
+		reportsAreaAux.add(reportTa);
 		reportsAreaAux.setMinimumSize(MINSIZE);
 		reportsArea = new JScrollPane(reportsAreaAux);
 		scroll(reportsArea);
-		
+		readReports();
+	}
+	
+	private void readReports() throws IOException {
+		FileReader reader = new FileReader(ctrl.OUTFILE);
+        BufferedReader br = new BufferedReader(reader);
+        reportTa.read( br, null );
+        br.close();
+        reportTa.requestFocus();
 	}
 	
 	/*
@@ -204,19 +241,26 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		SimulatorAction saveRe = new SimulatorAction(
 				"Save Report", "save_report.png", "Save current report",
 				KeyEvent.VK_R, "control R", 
-				()-> System.err.println("saving..."));
+				()-> {
+					try {
+						saveReport();
+					} catch (FileNotFoundException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				});
 		SimulatorAction run = new SimulatorAction(
 				"Run", "play.png", "Start simulation",
 				KeyEvent.VK_Q, "control Q", 
-				()-> System.err.println("simulating..."));
+				()-> ctrl.keepRunningSteps(1)); //ejecutar 1 tick
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
 				KeyEvent.VK_W, "control W", 
 				()-> System.err.println("reseting..."));
 		SimulatorAction generate = new SimulatorAction(
-				"Generate", "report.png", "Generate report",
+				"Generate", "report.png", "",
 				KeyEvent.VK_G, "control G", 
-				()-> System.err.println("generating..."));
+				()-> System.err.println(""));
 		SimulatorAction clear = new SimulatorAction(
 				"Clear", "clear.png", "Clear reports area",
 				KeyEvent.VK_F, "control F", 
@@ -255,10 +299,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		setJMenuBar(menu);
 	}
 	
-	/*
-	 * Inicia y configura todos los componentes visibles
-	 */
-	private void initGUI() throws SimulatorExc {
+	private void initEverything() throws SimulatorExc, IOException {
 		initEvEditor();
 		initEvQueue(ctrl.getSim().getEventQueue());
 		initReportsArea();
@@ -266,14 +307,21 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		initRTable();
 		initJunTable();
 		initMap();
+	}
+	
+	/*
+	 * Inicia y configura todos los componentes visibles
+	 */
+	private void initGUI() throws SimulatorExc, IOException {
+		initEverything();
 		addBars();
 		
-		/*for(JComponent c: new JComponent[] { por alguna razón esto bloquea vehicles
+		for(JComponent c: new JComponent[] {
 				evEditor, evQueue, reportsArea, vehicles, roads, junctions}){
 			c.setMinimumSize(new Dimension(240, 140));
-		}*/
+		}
 		
-		
+	
 		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehicles, roads); //implementar splitpane ternarios?
 		upperSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueue);
 		tableSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tableSplit1, junctions);
@@ -288,34 +336,33 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		}
 		
 		//meter esto en otro método fuera de initgui formatear()?
-		SwingUtilities.invokeLater(() -> {
-			mainSplit.setDividerLocation(0.4);
-			bottomSplit.setDividerLocation(0.7);
-			SwingUtilities.invokeLater(() -> {
-				upperSplit2.setDividerLocation(0.7);
-				tableSplit2.setDividerLocation(0.7);
-				SwingUtilities.invokeLater(() -> {
-					upperSplit1.setDividerLocation(0.5);
-					tableSplit1.setDividerLocation(0.5);
-				});
-			});
-		});
-		
-		
-		Dimension max = new Dimension(500, 500);
-		map.setMaximumSize(max);
-	
+
 		setLayout(new BorderLayout());
 		setContentPane(mainSplit);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		pack();
 		setSize(720, 480);
 		setVisible(true);
+		//cada vez que cambie de tamaño llama a lo de los scrollpane
+		addComponentListener(new ComponentAdapter() {
+			public void componentResized(ComponentEvent e) {
+				setSplitPaneSizes();
+			}
+		});
+	}
+	
+	private void setSplitPaneSizes() {
+		mainSplit.setDividerLocation(0.4);
+		bottomSplit.setDividerLocation(0.7);
+		upperSplit2.setDividerLocation(0.7);
+		tableSplit2.setDividerLocation(0.7);
+		upperSplit1.setDividerLocation(0.5);
+		tableSplit1.setDividerLocation(0.5);		
 	}
 	
 	/*
 	 * MÉTODOS DE SIMULATOR LISTENER
 	 */
+	
 	@Override
 	public void registered(UpdateEvent ue) {
 		// TODO Auto-generated method stub
@@ -340,8 +387,15 @@ public class MainFrame extends JFrame implements SimulatorListener{
 
 	@Override
 	public void advanced(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
+		try {
+			initEverything();
+		} catch (SimulatorExc e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override

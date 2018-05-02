@@ -1,5 +1,7 @@
 package es.ucm.fdi.launcher;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +22,9 @@ public class Controller {
 	private InputStream in;
 	private OutputStream out;
 	private int ticks;
+	private String eventsForDisplay;
+	
+	public static final String OUTFILE = "out.txt";
 	
 	/*
 	 * Constructura para modo batch
@@ -31,19 +36,24 @@ public class Controller {
 	}
 	
 	/*
-	 * Constructora para modo GUI
+	 * Constructoras para modo GUI
 	 */
-	public Controller(InputStream in, int initialTicks) throws NegativeArgExc {
+	public Controller(InputStream in, int initialTicks) throws NegativeArgExc, IOException {
 		if(in != null) this.in = in;
 		ticks = initialTicks;
-		
 		//sim = new Simulator(ticks);
-		//cargar eventos en la zona de eventos!!
+		File outFile = new File(OUTFILE);
+		outFile.createNewFile();
+		out = new FileOutputStream(outFile);
 	}
 	
 	public Simulator getSim() throws SimulatorExc {
 		if(sim == null) throw new SimulatorExc();
 		else return sim;
+	}
+	
+	public String getEventsDisplay() {
+		return eventsForDisplay;
 	}
 	
 	/*
@@ -58,6 +68,7 @@ public class Controller {
 				new MakeVehicleFaultyE.MakeVehicleFaultyBuilder()
 		}; 
 		Ini ini = new Ini(in);
+		eventsForDisplay = ini.toString();
 		for(IniSection is: ini.getSections())
 			 for(EventBuilder eb: traducc) {
 				 Event evt = eb.parse(is);
@@ -70,14 +81,30 @@ public class Controller {
 	/*
 	 * Inicia el simulador, lee los eventos y los ejecuta
 	 */
-	public void run() {
+	public void run(int t, boolean limit) {
 		try {
-			sim = new Simulator(ticks);
-			readEvs();
-			sim.ejecuta(ticks, out);
+			initSim(t);
+			if(limit) keepRunning(t);
+			else keepRunningSteps(t);
 		} catch (NegativeArgExc e) {
 		} catch (IOException e) {
 			System.out.println("Error en la lectura de eventos");
 		}
+	}
+	
+	private void initSim(int t) throws NegativeArgExc, IOException {
+		sim = new Simulator(t);
+		readEvs();
+	}
+	
+	/*
+	 * Método pensado para ser llamado desde MainFrame
+	 */
+	public void keepRunning(int t) {
+		sim.ejecuta(t, out);
+	}
+	
+	public void keepRunningSteps(int t) {
+		sim.ejecutaSteps(t, out);
 	}
 }

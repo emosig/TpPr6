@@ -43,13 +43,15 @@ public class MyTextEditor extends JPanel{
 		JScrollPane area = new JScrollPane(textArea);
 		area.setPreferredSize(new Dimension(500, 500));
 		add(area);
-		
 		fc = new JFileChooser();
-		
 	}
 	
 	public String getName() {
 		return fileName;
+	}
+	
+	public void append(String s) {
+		textArea.append(s);
 	}
 	
 	public void load() {

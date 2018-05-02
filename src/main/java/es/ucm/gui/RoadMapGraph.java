@@ -34,7 +34,7 @@ public class RoadMapGraph extends JPanel{
 		_graphComp = new GraphComponent();
 		rm = r;
 		generateGraph();
-		add(_graphComp);
+		add(_graphComp, BorderLayout.CENTER);
 	}
 	
 	private void generateGraph() {
