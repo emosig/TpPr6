@@ -143,6 +143,10 @@ public class Simulator {
 		evs = new MultiTreeMap<>();
 	}
 	
+	/*
+	 * Ejecuta los pasos del simulador
+	 * Usar cuando haya archivo de eventos!!
+	 */
 	private void executeFurther(OutputStream out) {
 		//1 ejecutar eventos
 		for(Event e: evs.innerValues()) {
@@ -197,10 +201,16 @@ public class Simulator {
 		}
 	}
 	
+	/*
+	 * Ejecuta un número de pasos
+	 */
 	public void ejecutaSteps(int steps, OutputStream out) {
 		for(int i = 0; i < steps; ++i) executeFurther(out);
 	}
 	
+	/*
+	 * Ejecuta hasta llegar al límite establecido
+	 */
 	public void ejecuta(int steps, OutputStream out){
 		while(simTime < limit) {
 			executeFurther(out);

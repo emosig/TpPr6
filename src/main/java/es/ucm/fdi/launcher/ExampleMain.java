@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-//import java.io.FilenameFilter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -20,6 +19,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
+import es.ucm.fdi.control.Controller;
 import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
@@ -36,7 +36,7 @@ public class ExampleMain {
 	private static boolean parseArgs(String[] args) {
 
 		// define the valid command line options
-		//returns true for GUI mode, false for batch mode
+		// returns true for GUI mode, false for batch mode
 		//
 		Options cmdLineOptions = buildOptions();
 
@@ -48,12 +48,11 @@ public class ExampleMain {
 			CommandLine line = parser.parse(cmdLineOptions, args);
 			parseHelpOption(line, cmdLineOptions);
 			mode = parseModeOption(line);
-			parseInFileOption(line, mode); //opcional en gui
-			if(!mode) {
+			parseInFileOption(line, mode); // opcional en gui
+			if (!mode) {
 				parseOutFileOption(line);
 				parseStepsOption(line);
 			}
-			
 
 			// if there are some remaining arguments, then something wrong is
 			// provided in the command line!
@@ -79,10 +78,10 @@ public class ExampleMain {
 
 		cmdLineOptions.addOption(Option.builder("h").longOpt("help").desc("Print this message").build());
 		cmdLineOptions.addOption(Option.builder("i").longOpt("input").hasArg().desc("Events input file").build());
-		
-		cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg().desc(
-				"’batch’ for batch mode and ’gui’ for GUI mode (default value is ’batch’)").build());
-		
+
+		cmdLineOptions.addOption(Option.builder("m").longOpt("mode").hasArg()
+				.desc("’batch’ for batch mode and ’gui’ for GUI mode (default value is ’batch’)").build());
+
 		cmdLineOptions.addOption(
 				Option.builder("o").longOpt("output").hasArg().desc("Output file, where reports are written.").build());
 		cmdLineOptions.addOption(Option.builder("t").longOpt("ticks").hasArg()
@@ -103,10 +102,10 @@ public class ExampleMain {
 	private static void parseInFileOption(CommandLine line, boolean mode) throws ParseException {
 		_inFile = line.getOptionValue("i");
 		if (_inFile == null) {
-			if(mode) { //gui
+			if (mode) { // gui
 				_inFile = IN_FILE_DEFAULT;
-			}
-			else throw new ParseException("An events file is missing");
+			} else
+				throw new ParseException("An events file is missing");
 		}
 	}
 
@@ -123,15 +122,18 @@ public class ExampleMain {
 			throw new ParseException("Invalid value for time limit: " + t);
 		}
 	}
-	
+
 	/*
 	 * returns true for GUI, false for batch
 	 */
 	private static boolean parseModeOption(CommandLine line) throws ParseException {
 		String t = line.getOptionValue("m");
-		if("gui".equals(t)) return true;
-		else if("batch".equals(t)) return false;
-		else throw new ParseException("Invalid mode");
+		if ("gui".equals(t))
+			return true;
+		else if ("batch".equals(t))
+			return false;
+		else
+			throw new ParseException("Invalid mode");
 	}
 
 	/**
@@ -141,31 +143,30 @@ public class ExampleMain {
 	 * The simulator's output will be stored in "example.ini.out"
 	 * 
 	 * @throws IOException
-	 * @throws InterruptedException 
-	 * @throws InvocationTargetException 
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
 	 */
 	public static void test(String path) throws IOException, InvocationTargetException, InterruptedException {
 
 		File dir = new File(path);
 
-		if ( !dir.exists() ) {
+		if (!dir.exists()) {
 			throw new FileNotFoundException(path);
 		}
 		File[] files = dir.listFiles(
-				/*
-				 * Me hubiese gustado que fuese de otra forma, pero 
-				 * lo que tuvimos FilenameFilter y yo nunca funcionó
-				 * 
-				new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				return name.endsWith(".ini");
-			}
-		}*/);
+		/*
+		 * Me hubiese gustado que fuese de otra forma, pero lo que tuvimos
+		 * FilenameFilter y yo nunca funcionó
+		 * 
+		 * new FilenameFilter() {
+		 * 
+		 * @Override public boolean accept(File dir, String name) { return
+		 * name.endsWith(".ini"); } }
+		 */);
 
 		for (File file : files) {
-			//mi código
-			if(file.getName().endsWith(".ini"))
+			// mi código
+			if (file.getName().endsWith(".ini"))
 				try {
 					test(file.getAbsolutePath(), file.getAbsolutePath() + ".out", file.getAbsolutePath() + ".eout", 10);
 				} catch (NegativeArgExc e) {
@@ -176,18 +177,19 @@ public class ExampleMain {
 
 	}
 
-	private static void test(String inFile, String outFile, String expectedOutFile, int timeLimit) throws IOException, InvocationTargetException, InterruptedException, NegativeArgExc {
+	private static void test(String inFile, String outFile, String expectedOutFile, int timeLimit)
+			throws IOException, InvocationTargetException, InterruptedException, NegativeArgExc {
 		_outFile = outFile;
 		_inFile = inFile;
 		_timeLimit = timeLimit;
-		
+
 		startGUIMode();
-		
-		//startBatchMode();
+
+		// startBatchMode();
 		boolean equalOutput = (new Ini(_outFile)).equals(new Ini(expectedOutFile));
 		System.out.println("Result for: '" + _inFile + "' : "
 				+ (equalOutput ? "OK!" : ("not equal to expected output +'" + expectedOutFile + "'")));
-				
+
 	}
 
 	/**
@@ -204,56 +206,67 @@ public class ExampleMain {
 			OutputStream o = new FileOutputStream(_outFile);
 			Controller c = new Controller(i, o, _timeLimit);
 			c.run(_timeLimit, true);
-		} catch(FileNotFoundException f){
+		} catch (FileNotFoundException f) {
 			System.out.println("El sistema no puede encontrar la ruta especificada");
-		}	
+		}
 	}
-	
+
 	/**
 	 * Run the simulator in GUI mode
 	 * 
 	 * @throws IOException
-	 * @throws InterruptedException 
-	 * @throws InvocationTargetException 
-	 * @throws NegativeArgExc 
+	 * @throws InterruptedException
+	 * @throws InvocationTargetException
+	 * @throws NegativeArgExc
 	 */
-	private static void startGUIMode() throws IOException, InvocationTargetException, InterruptedException, NegativeArgExc {
-		InputStream i = null;
-		try {
-			if(_inFile != null)
-				i = new FileInputStream(_inFile);
-			Controller c = new Controller(i, _timeLimit);
-			SwingUtilities.invokeAndWait(new Runnable() { 
-				public void run() { 
-					try {
-						new MainFrame(c, null);
-					} catch (SimulatorExc e) {
-						e.printStackTrace();
-					} catch (NegativeArgExc e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					} catch (IOException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
-					}
-					} 
-				});
-		} catch(FileNotFoundException f){
-			System.out.println("El sistema no puede encontrar la ruta especificada");
-		} catch (NegativeArgExc e) {
-			//e.printStackTrace();
-		}	
+	private static void startGUIMode()
+			throws IOException, InvocationTargetException, InterruptedException,
+			NegativeArgExc {
+			InputStream i = null;
+			try {
+				if (_inFile != null) {
+					i = new FileInputStream(_inFile);
+				}
+				Controller c = new Controller(i, _timeLimit == null ? 10 : _timeLimit);
+				runGUI(c);
+			} catch (FileNotFoundException f) {
+				System.out.println(
+						"No se ha especificado un archivo o ha ocurrido un error de lectura");
+				System.out.println("Ejecutando simulador vacío.");
+				//Crea un controlador "vacío"
+				Controller c = new Controller(
+						_timeLimit == null ? 10 : _timeLimit);
+				runGUI(c);
+			}
+	}
+	
+	private static void runGUI(Controller c)
+			throws InvocationTargetException, InterruptedException {
+		SwingUtilities.invokeAndWait(new Runnable() {
+			public void run() {
+				try {
+					new MainFrame(c, null);
+				} catch (SimulatorExc | NegativeArgExc | 
+						IOException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 	}
 
-	private static void start(String[] args) throws IOException, InvocationTargetException, InterruptedException, NegativeArgExc {
-		if(parseArgs(args)) startGUIMode();
-		else startBatchMode();
+	private static void start(String[] args)
+			throws IOException, InvocationTargetException, InterruptedException, NegativeArgExc {
+		if (parseArgs(args))
+			startGUIMode();
+		else
+			startBatchMode();
 	}
 
 	public static void main(String[] args) throws IOException, InvocationTargetException, InterruptedException {
 
 		// my example command lines:
 		//
+		// -m gui -i src\main\resources\examples\basic\00_helloWorld.ini
 		// -i src/main/resources/examples/basic/00_helloWorld.ini
 		// -i src/main/resources/examples/basic/00_helloWorld.ini -o ex1.out
 		// -i src/main/resources/examples/basic/00_helloWorld.ini -t 20
@@ -262,14 +275,14 @@ public class ExampleMain {
 		//
 
 		// Call test in order to test the simulator on all examples in a directory.
-		test("src/main/resources/examples/basic/test");
+		// test("src/main/resources/examples/basic/test");
 		// Call start to start the simulator from command line, etc.
-		/*try {
+		try {
 			start(args);
 		} catch (NegativeArgExc e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		}*/
+		}
 	}
 
 }

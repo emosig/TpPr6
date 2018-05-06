@@ -34,11 +34,11 @@ import javax.swing.border.TitledBorder;
 
 import com.sun.javafx.event.EventQueue;
 
+import es.ucm.fdi.control.Controller;
 import es.ucm.fdi.control.SimulatorAction;
 import es.ucm.fdi.events.Event;
 import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
-import es.ucm.fdi.launcher.Controller;
 import es.ucm.fdi.util.MyTable;
 import es.ucm.fdi.util.MyTextEditor;
 import es.ucm.model.SimulatorListener;
@@ -62,6 +62,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private RoadMapGraph map;
 	
 	private MyTable evQueueTable;
+	private MyTable vehiclesTable;
+	private MyTable roadsTable;
+	private MyTable junctionsTable;
 	private JTextArea reportTa;
 	
 	private JSplitPane tableSplit1;
@@ -127,33 +130,33 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 	
 	/*
-	 * Inicializa el editor de eventos
+	 * En lo que sigue, los métodos initX inicializan el componente X vacío
+	 * y los métodos loadX cargan la información de estos componentes.
 	 */
-	private void initEvEditor() throws SimulatorExc {
+	
+	private void initEvEditor() {
 		evEditor = new MyTextEditor();
 		border(new StringBuilder("Events: ").append(evEditor.getName())
 				.toString(), evEditor);
-		updateEvs();
+	}
+	
+	private void loadEvEditor() throws SimulatorExc {
 		evEditor.append(ctrl.getEventsDisplay());
 	}
 	
-	private void updateEvs() throws SimulatorExc {
-		
-	}
-	
-	/*
-	 * Inicializa la cola de eventos
-	 */
-	private void initEvQueue(List<Event> e) throws SimulatorExc {
-		evQueueTable = new MyTable(e);
+	private void initEvQueue(){
+		//evQueueTable = new MyTable(e);
+		evQueueTable = new MyTable();
 		evQueue = new JScrollPane(evQueueTable);
 		border("Events Queue", evQueue);
 		scroll(evQueue);
 	}
 	
-	/*
-	 * Inicializa el área de reports
-	 */
+	private void loadEvQueue(List<Event> e) {
+		evQueueTable = new MyTable(e);
+		evQueue.validate(); //?
+	}
+	
 	private void initReportsArea() throws IOException {
 		JPanel reportsAreaAux = new JPanel();
 		border("Reports Area", reportsAreaAux);
@@ -164,10 +167,10 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		reportsAreaAux.setMinimumSize(MINSIZE);
 		reportsArea = new JScrollPane(reportsAreaAux);
 		scroll(reportsArea);
-		readReports();
+		loadReports();
 	}
 	
-	private void readReports() throws IOException {
+	private void loadReports() throws IOException {
 		FileReader reader = new FileReader(ctrl.OUTFILE);
         BufferedReader br = new BufferedReader(reader);
         reportTa.read( br, null );
@@ -185,25 +188,40 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 * Inicializa las tablas de objetos
 	 */
 	private void initVTable() throws SimulatorExc {
-		MyTable vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
+		vehiclesTable = new MyTable();
 		vehicles = new JScrollPane(vehiclesTable);
 		border("Vehicles", vehicles);
 		scroll(vehicles);
 	}
 	
+	private void loadVTable() throws SimulatorExc {
+		vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
+		vehicles.validate();
+	}
+	
 	private void initRTable() throws SimulatorExc {
-		MyTable roadsTable = new MyTable(ctrl.getSim().getRoadMap().getRoads());
+		roadsTable = new MyTable();
 		roads = new JScrollPane(roadsTable);
 		border("Roads", roads);
 		scroll(roads);
 	} 
 	
+	private void loadRTable() throws SimulatorExc {
+		roadsTable = new MyTable(ctrl.getSim().getRoadMap().getRoads());
+		roads.validate();
+	}
+	
 	private void initJunTable() throws SimulatorExc {
-		MyTable junctionsTable = new MyTable(ctrl.getSim().getRoadMap().getJunctions());
+		junctionsTable = new MyTable();
 		junctions = new JScrollPane(junctionsTable);
 		border("Junctions", junctions);
 		scroll(junctions);
 		
+	}
+	
+	private void loadJunTable() throws SimulatorExc {
+		junctionsTable = new MyTable(ctrl.getSim().getRoadMap().getJunctions());
+		junctions.validate();
 	}
 	
 	/*
@@ -212,6 +230,10 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private void initMap() throws SimulatorExc {
 		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
 		map.setMaximumSize(new Dimension(50, 50));
+	}
+
+	private void loadMap() {
+		
 	}
 	
 	/*
@@ -256,7 +278,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
 				KeyEvent.VK_W, "control W", 
-				()-> System.err.println("reseting..."));
+				()-> System.err.println(""));
 		SimulatorAction generate = new SimulatorAction(
 				"Generate", "report.png", "",
 				KeyEvent.VK_G, "control G", 
@@ -270,12 +292,12 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		JToolBar bar = new JToolBar();
 		for(SimulatorAction a: new SimulatorAction[] {
 				exit, save, load, saveRe, run, reset,
-				generate, clear})
+				generate, clear}) {
 			bar.add(a);
-		getContentPane().add(bar, BorderLayout.NORTH);
+		}
+		add(bar, BorderLayout.NORTH);
 
 		// add actions to menubar, and bar to window
-		
 		JMenu file = new JMenu("File");
 		file.add(load);		
 		file.add(save);		
@@ -299,9 +321,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		setJMenuBar(menu);
 	}
 	
-	private void initEverything() throws SimulatorExc, IOException {
+	private void initEverything() throws IOException, SimulatorExc{
 		initEvEditor();
-		initEvQueue(ctrl.getSim().getEventQueue());
+		initEvQueue();
 		initReportsArea();
 		initVTable();
 		initRTable();
@@ -309,11 +331,22 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		initMap();
 	}
 	
+	private void loadEverything() throws SimulatorExc, IOException {
+		loadEvEditor();
+		loadEvQueue(ctrl.getSim().getEventQueue());
+		loadReports();
+		loadVTable();
+		loadRTable();
+		loadJunTable();
+		loadMap();
+	}
+	
 	/*
 	 * Inicia y configura todos los componentes visibles
 	 */
 	private void initGUI() throws SimulatorExc, IOException {
 		initEverything();
+		if(!ctrl.isEmpty()) loadEverything();
 		addBars();
 		
 		for(JComponent c: new JComponent[] {
@@ -337,8 +370,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		
 		//meter esto en otro método fuera de initgui formatear()?
 
-		setLayout(new BorderLayout());
-		setContentPane(mainSplit);
+		add(mainSplit, BorderLayout.CENTER);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setSize(720, 480);
 		setVisible(true);
@@ -377,12 +409,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 
 	@Override
 	public void newEvent(UpdateEvent ue) {
-		try {
-			initEvQueue(ue.getEventQueue());
-		} catch (SimulatorExc e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}	
+		loadEvQueue(ue.getEventQueue());	
 	}
 
 	@Override

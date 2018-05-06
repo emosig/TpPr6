@@ -69,8 +69,20 @@ public class MyTable extends JPanel {
 	
 	private static JTable tab;
 	
+	/*
+	 * Empty table
+	 */
+	public MyTable() {
+		super(new BorderLayout());
+	}
+	
 	public MyTable(List<? extends DescribableEntity> data) {
 		super(new BorderLayout());
+		initTable(data);
+		
+	}
+	
+	public void initTable(List<? extends DescribableEntity> data) {
 		tab = new JTable(new MyTableModel(data));
 		add(new JScrollPane(tab), BorderLayout.CENTER);
 	}

@@ -1,4 +1,4 @@
-package es.ucm.fdi.launcher;
+package es.ucm.fdi.control;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -23,6 +23,9 @@ public class Controller {
 	private OutputStream out;
 	private int ticks;
 	private String eventsForDisplay;
+	private boolean evsRead;
+	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
+	private boolean emptySim; 
 	
 	public static final String OUTFILE = "out.txt";
 	
@@ -33,18 +36,35 @@ public class Controller {
 		this.in = in;
 		this.out = out;
 		this.ticks = ticks;
+		emptySim = false;
+		evsRead = false;
 	}
 	
 	/*
 	 * Constructoras para modo GUI
 	 */
-	public Controller(InputStream in, int initialTicks) throws NegativeArgExc, IOException {
+	public Controller(InputStream in, int initialTicks) throws  IOException {
 		if(in != null) this.in = in;
+		emptySim = false;
+		construct(initialTicks);
+	}
+	
+	public Controller(int initialTicks) throws IOException {
+		in = null;
+		emptySim = true;
+		construct(initialTicks);
+	}
+	
+	private void construct(int initialTicks) throws IOException {
 		ticks = initialTicks;
-		//sim = new Simulator(ticks);
 		File outFile = new File(OUTFILE);
 		outFile.createNewFile();
 		out = new FileOutputStream(outFile);
+		evsRead = false;
+	}
+	
+	public boolean isEmpty() {
+		return emptySim;
 	}
 	
 	public Simulator getSim() throws SimulatorExc {
@@ -52,8 +72,13 @@ public class Controller {
 		else return sim;
 	}
 	
-	public String getEventsDisplay() {
-		return eventsForDisplay;
+	/*
+	 * Devuelve representación de los eventos leídos.
+	 * Controla que ya se ha llamado a readEvs
+	 */
+	public String getEventsDisplay() throws SimulatorExc {
+		if(evsRead)	return eventsForDisplay;
+		else throw new SimulatorExc();
 	}
 	
 	/*
@@ -69,6 +94,7 @@ public class Controller {
 		}; 
 		Ini ini = new Ini(in);
 		eventsForDisplay = ini.toString();
+		evsRead = true;
 		for(IniSection is: ini.getSections())
 			 for(EventBuilder eb: traducc) {
 				 Event evt = eb.parse(is);
@@ -94,16 +120,19 @@ public class Controller {
 	
 	private void initSim(int t) throws NegativeArgExc, IOException {
 		sim = new Simulator(t);
-		readEvs();
+		if(!emptySim) readEvs();
 	}
 	
 	/*
-	 * Método pensado para ser llamado desde MainFrame
+	 * Ejecuta hasta llegar al límite establecido
 	 */
 	public void keepRunning(int t) {
 		sim.ejecuta(t, out);
 	}
 	
+	/*
+	 * Ejecuta un número de pasos
+	 */
 	public void keepRunningSteps(int t) {
 		sim.ejecutaSteps(t, out);
 	}
