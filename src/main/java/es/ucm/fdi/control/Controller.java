@@ -78,21 +78,20 @@ public class Controller {
 	 */
 	public String getEventsDisplay() throws SimulatorExc {
 		if(evsRead)	return eventsForDisplay;
-		else throw new SimulatorExc();
+		else throw new SimulatorExc("No hay eventos cargados");
 	}
 	
 	/*
 	 * Parsea los eventos que recibe en formato ini por el input y
 	 * y los añade al simulador
 	 */
-	public void readEvs() throws IOException {
+	public void readEvs(Ini ini) throws IOException {
 		EventBuilder[] traducc = {
 				new NewVehicleE.NewVehicleBuilder(), 
 				new NewRoadE.NewRoadBuilder(),
 				new NewJunctionE.NewJunctionBuilder(),
 				new MakeVehicleFaultyE.MakeVehicleFaultyBuilder()
 		}; 
-		Ini ini = new Ini(in);
 		eventsForDisplay = ini.toString();
 		evsRead = true;
 		for(IniSection is: ini.getSections())
@@ -104,6 +103,13 @@ public class Controller {
 					 sim.insertaEvento(evt);
 			 }
 	}
+	
+	/*
+	 * Parsea los eventos de un archivo alojado en path
+	 */
+	public void readEvs(String path) throws IOException {
+		readEvs(new Ini(path));
+	}
 	/*
 	 * Inicia el simulador, lee los eventos y los ejecuta
 	 */
@@ -111,7 +117,7 @@ public class Controller {
 		try {
 			initSim(t);
 			if(limit) keepRunning(t);
-			else keepRunningSteps(t);
+			//else keepRunningSteps(t);
 		} catch (NegativeArgExc e) {
 		} catch (IOException e) {
 			System.out.println("Error en la lectura de eventos");
@@ -120,7 +126,7 @@ public class Controller {
 	
 	private void initSim(int t) throws NegativeArgExc, IOException {
 		sim = new Simulator(t);
-		if(!emptySim) readEvs();
+		if(!emptySim) readEvs(new Ini(in));
 	}
 	
 	/*
@@ -135,5 +141,9 @@ public class Controller {
 	 */
 	public void keepRunningSteps(int t) {
 		sim.ejecutaSteps(t, out);
+	}
+	
+	public void reset() {
+		sim.reset();
 	}
 }

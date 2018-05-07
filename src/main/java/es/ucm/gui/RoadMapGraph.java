@@ -29,9 +29,21 @@ public class RoadMapGraph extends JPanel{
 	private GraphComponent _graphComp;
 	private RoadMap rm;
 	
+	/*
+	 * Constructora para roadmap vacío
+	 */
+	public RoadMapGraph() {
+		super(new BorderLayout());
+		_graphComp = new GraphComponent();
+	}
+	
 	public RoadMapGraph(RoadMap r) {
 		super(new BorderLayout());
 		_graphComp = new GraphComponent();
+		loadRoadMapGraph(r);
+	}
+	
+	public void loadRoadMapGraph(RoadMap r) {
 		rm = r;
 		generateGraph();
 		add(_graphComp, BorderLayout.CENTER);

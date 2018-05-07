@@ -21,14 +21,19 @@ import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
+import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
+import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
@@ -52,7 +57,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private Controller ctrl;
 	private OutputStream reportsOutputStream;
-	
+
 	private MyTextEditor evEditor;
 	private JScrollPane evQueue; 
 	private JScrollPane reportsArea; 
@@ -66,6 +71,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private MyTable roadsTable;
 	private MyTable junctionsTable;
 	private JTextArea reportTa;
+	private JLabel status;
+	private JTextField timer;
+	private JSpinner steps;
 	
 	private JSplitPane tableSplit1;
 	private JSplitPane tableSplit2;
@@ -83,7 +91,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 			throws SimulatorExc, NegativeArgExc, IOException {
 		super("Traffic Simulator");
 		this.ctrl = ctrl;
-		ctrl.run(1, false);
+		ctrl.run(1, false); //cuidadín
 		currentFile = inFileName != null ? new File(inFileName) : null;
 		/*
 		reportsOutputStream = new JTextAreaOutputStream(reportsArea,null);
@@ -92,7 +100,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		ctrl.getSim().addSimulatorListener(this);
 		initGUI();
 		
-		ctrl.keepRunningSteps(1);
+		//ctrl.keepRunningSteps(1);
 	}
 	
 	/*
@@ -107,7 +115,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 			out.print(reportTa.getText());
 			out.close();
 		}
-			
 	}
 	
 	/*
@@ -145,7 +152,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 	
 	private void initEvQueue(){
-		//evQueueTable = new MyTable(e);
 		evQueueTable = new MyTable();
 		evQueue = new JScrollPane(evQueueTable);
 		border("Events Queue", evQueue);
@@ -153,8 +159,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 	
 	private void loadEvQueue(List<Event> e) {
-		evQueueTable = new MyTable(e);
-		evQueue.validate(); //?
+		evQueueTable.initTable(e);
 	}
 	
 	private void initReportsArea() throws IOException {
@@ -195,8 +200,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 	
 	private void loadVTable() throws SimulatorExc {
-		vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
-		vehicles.validate();
+		vehiclesTable.initTable(ctrl.getSim().getRoadMap().getVehicles());
 	}
 	
 	private void initRTable() throws SimulatorExc {
@@ -207,8 +211,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	} 
 	
 	private void loadRTable() throws SimulatorExc {
-		roadsTable = new MyTable(ctrl.getSim().getRoadMap().getRoads());
-		roads.validate();
+		roadsTable.initTable(ctrl.getSim().getRoadMap().getRoads());
 	}
 	
 	private void initJunTable() throws SimulatorExc {
@@ -220,26 +223,26 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 	
 	private void loadJunTable() throws SimulatorExc {
-		junctionsTable = new MyTable(ctrl.getSim().getRoadMap().getJunctions());
-		junctions.validate();
+		junctionsTable.initTable(ctrl.getSim().getRoadMap().getJunctions());
 	}
 	
 	/*
 	 * Inicializa el roadmap gráfico
 	 */
 	private void initMap() throws SimulatorExc {
-		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
+		map = new RoadMapGraph();
 		map.setMaximumSize(new Dimension(50, 50));
 	}
 
-	private void loadMap() {
-		
+	private void loadMap() throws SimulatorExc {
+		map.loadRoadMapGraph(ctrl.getSim().getRoadMap());
 	}
 	
 	/*
 	 * Tomado de SimWindow
 	 */
 	private void addBars() {
+		
 		// instantiate actions
 		SimulatorAction exit = new SimulatorAction(
 				"Exit", "exit.png", "Exit the application",
@@ -259,7 +262,17 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		SimulatorAction load = new SimulatorAction(
 				"Load Events", "open.png", "Load events from file",
 				KeyEvent.VK_L, "control L", 
-				()-> evEditor.load());
+				()-> {
+					String path = evEditor.load();
+					if(ctrl.isEmpty()) {
+						try {
+							ctrl.readEvs(path); 
+						} catch (IOException e) {
+							// TODO Auto-generated catch block
+							e.printStackTrace();
+						}
+					}
+				});
 		SimulatorAction saveRe = new SimulatorAction(
 				"Save Report", "save_report.png", "Save current report",
 				KeyEvent.VK_R, "control R", 
@@ -274,33 +287,66 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		SimulatorAction run = new SimulatorAction(
 				"Run", "play.png", "Start simulation",
 				KeyEvent.VK_Q, "control Q", 
-				()-> ctrl.keepRunningSteps(1)); //ejecutar 1 tick
+				()-> {
+					int howMany = (Integer)steps.getValue();
+					if (howMany <= 0 || howMany >= 100) {
+						JOptionPane.showMessageDialog(
+								null, "Seleccione un número de pasos entre 1 y 99",
+								"Error", JOptionPane.ERROR_MESSAGE);
+					}
+					else ctrl.keepRunningSteps(howMany);
+				});
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
 				KeyEvent.VK_W, "control W", 
-				()-> System.err.println(""));
+				()-> ctrl.reset());
 		SimulatorAction generate = new SimulatorAction(
 				"Generate", "report.png", "",
 				KeyEvent.VK_G, "control G", 
 				()-> System.err.println(""));
-		SimulatorAction clear = new SimulatorAction(
+		SimulatorAction clearR = new SimulatorAction(
 				"Clear", "clear.png", "Clear reports area",
 				KeyEvent.VK_F, "control F", 
+				()-> reportTa.setText(null));
+		SimulatorAction clearE = new SimulatorAction(
+				"Clear", "clear.png", "Clear events area",
+				KeyEvent.VK_E, "control E", 
 				()-> evEditor.clear());
 
+		// inicializo los cuadros de time y steps
+		steps = new JSpinner();
+		steps.setPreferredSize(new Dimension(50, 5));
+		try {
+			steps.setValue(ctrl.getSim().getSimTime());
+		} catch (SimulatorExc e1) {
+			System.out.println("Steps por defecto\n");
+		}
+		timer = new JTextField();	
+		timer.setText("0");
+		timer.setPreferredSize(new Dimension(50, 5));
+		timer.setEnabled(false);
+		
+		JLabel stepsLabel = new JLabel("Steps ");
+		JLabel timerLabel = new JLabel("Time: ");
+		
 		// add actions to toolbar, and bar to window
 		JToolBar bar = new JToolBar();
 		for(SimulatorAction a: new SimulatorAction[] {
-				exit, save, load, saveRe, run, reset,
-				generate, clear}) {
+				save, load, clearE, saveRe, run, reset,
+				generate, clearR, exit}) {
 			bar.add(a);
 		}
+		bar.add(stepsLabel);
+		bar.add(steps);
+		bar.add(timerLabel);
+		bar.add(timer);
 		add(bar, BorderLayout.NORTH);
 
 		// add actions to menubar, and bar to window
 		JMenu file = new JMenu("File");
 		file.add(load);		
-		file.add(save);		
+		file.add(save);	
+		file.add(clearE);
 		file.addSeparator();
 		file.add(saveRe);
 		file.addSeparator();
@@ -312,13 +358,20 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		
 		JMenu rep = new JMenu("Reports");
 		rep.add(generate);	
-		rep.add(clear);
+		rep.add(clearR);
 		
 		JMenuBar menu = new JMenuBar();
 		menu.add(file);
 		menu.add(sim);
 		menu.add(rep);
 		setJMenuBar(menu);
+		
+		//lower bar
+		JPanel lowerBar = new JPanel();
+		add(lowerBar, BorderLayout.SOUTH);
+		status = new JLabel("test"/*, SwingConstants.LEFT*/);
+		lowerBar.add(status);
+
 	}
 	
 	private void initEverything() throws IOException, SimulatorExc{
@@ -331,6 +384,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		initMap();
 	}
 	
+	/*
+	 * Esto lo voy a quitar yo
+	 */
 	private void loadEverything() throws SimulatorExc, IOException {
 		loadEvEditor();
 		loadEvQueue(ctrl.getSim().getEventQueue());
@@ -415,18 +471,21 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	@Override
 	public void advanced(UpdateEvent ue) {
 		try {
-			initEverything();
+			loadEverything();
 		} catch (SimulatorExc e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			JOptionPane.showMessageDialog(
+					null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
+			//e.printStackTrace();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+		int t = Integer.valueOf(timer.getText());
+		timer.setText(String.valueOf(t));
 	}
 
 	@Override
 	public void error(UpdateEvent ue, String error) {
-		// TODO Auto-generated method stub
+		JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 }

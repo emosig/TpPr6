@@ -15,6 +15,7 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 
 /*
  * Componente de swing editor de texto
@@ -23,10 +24,7 @@ public class MyTextEditor extends JPanel{
 	
 	private JTextArea textArea;
 	private JFileChooser fc;
-	//private InputStream in;
 	private PrintWriter out;
-	
-	//private boolean modif;
 	private String fileName;
 	
 	public MyTextEditor() {
@@ -54,13 +52,18 @@ public class MyTextEditor extends JPanel{
 		textArea.append(s);
 	}
 	
-	public void load() {
+	/*
+	 * Devuelve la ruta del fichero leído o null
+	 */
+	public String load() {
 		int r = fc.showOpenDialog(null);
 		if (r == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
 			String s = readFile(file);
 			textArea.setText(s);
+			return file.getAbsolutePath();
 		}
+		else return null;
 	}
 	
 	public void clear() {
@@ -85,7 +88,7 @@ public class MyTextEditor extends JPanel{
 	
 	private void writeOut() throws FileNotFoundException {
 		out = new PrintWriter(fc.getSelectedFile());
-		out.print(textArea.getText());
+		out.print(textArea.getText());//devuelve vacío!
 		out.close();
 	}
 }

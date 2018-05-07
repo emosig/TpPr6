@@ -7,4 +7,8 @@ public class SimulatorExc extends Exception {
 	public SimulatorExc() {
 		super("Acceso prematuro al simulador");
 	}
+	
+	public SimulatorExc(String s) {
+		super(s);
+	}
 }
