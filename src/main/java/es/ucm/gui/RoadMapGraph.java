@@ -21,6 +21,7 @@ import es.ucm.fdi.extra.graphlayout.Node;
 import es.ucm.sim.RoadMap;
 import es.ucm.sim.obj.Junction;
 import es.ucm.sim.obj.Road;
+import es.ucm.sim.obj.Vehicle;
 
 /*
  * Componente de swing para el roadmap gráfico
@@ -60,6 +61,8 @@ public class RoadMapGraph extends JPanel{
 		for (Road r : rm.getRoads()) {
 			Edge e = new Edge(r.getId(), js.get(r.getIniJ()), 
 					js.get(r.getFinalJ()), r.getLong() );
+			for(Vehicle v: rm.getVehicles())
+				e.addDot(new Dot(v.getId(), v.getLoc()));
 			g.addEdge(e);
 		}
 		_graphComp.setGraph(g);

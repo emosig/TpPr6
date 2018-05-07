@@ -23,9 +23,9 @@ public class Controller {
 	private OutputStream out;
 	private int ticks;
 	private String eventsForDisplay;
-	private boolean evsRead;
-	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
 	private boolean emptySim; 
+	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
+	private boolean isThereFile;
 	
 	public static final String OUTFILE = "out.txt";
 	
@@ -36,8 +36,7 @@ public class Controller {
 		this.in = in;
 		this.out = out;
 		this.ticks = ticks;
-		emptySim = false;
-		evsRead = false;
+		isThereFile = true;
 	}
 	
 	/*
@@ -45,26 +44,30 @@ public class Controller {
 	 */
 	public Controller(InputStream in, int initialTicks) throws  IOException {
 		if(in != null) this.in = in;
-		emptySim = false;
+		isThereFile = true;
 		construct(initialTicks);
 	}
 	
 	public Controller(int initialTicks) throws IOException {
 		in = null;
-		emptySim = true;
+		isThereFile = false;
 		construct(initialTicks);
 	}
 	
 	private void construct(int initialTicks) throws IOException {
+		emptySim = true;
 		ticks = initialTicks;
 		File outFile = new File(OUTFILE);
 		outFile.createNewFile();
 		out = new FileOutputStream(outFile);
-		evsRead = false;
 	}
 	
 	public boolean isEmpty() {
 		return emptySim;
+	}
+	
+	public boolean isFile() {
+		return isThereFile;
 	}
 	
 	public Simulator getSim() throws SimulatorExc {
@@ -77,7 +80,7 @@ public class Controller {
 	 * Controla que ya se ha llamado a readEvs
 	 */
 	public String getEventsDisplay() throws SimulatorExc {
-		if(evsRead)	return eventsForDisplay;
+		if(!emptySim)	return eventsForDisplay;
 		else throw new SimulatorExc("No hay eventos cargados");
 	}
 	
@@ -93,7 +96,7 @@ public class Controller {
 				new MakeVehicleFaultyE.MakeVehicleFaultyBuilder()
 		}; 
 		eventsForDisplay = ini.toString();
-		evsRead = true;
+		emptySim = false;
 		for(IniSection is: ini.getSections())
 			 for(EventBuilder eb: traducc) {
 				 Event evt = eb.parse(is);
@@ -126,7 +129,7 @@ public class Controller {
 	
 	private void initSim(int t) throws NegativeArgExc, IOException {
 		sim = new Simulator(t);
-		if(!emptySim) readEvs(new Ini(in));
+		if(isThereFile) readEvs(new Ini(in));
 	}
 	
 	/*
@@ -145,5 +148,6 @@ public class Controller {
 	
 	public void reset() {
 		sim.reset();
+		emptySim = true;
 	}
 }

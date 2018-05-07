@@ -56,16 +56,10 @@ import es.ucm.sim.Simulator.UpdateEvent;
 public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private Controller ctrl;
-	private OutputStream reportsOutputStream;
 
 	private MyTextEditor evEditor;
-	private JScrollPane evQueue; 
 	private JScrollPane reportsArea; 
-	private JScrollPane vehicles;
-	private JScrollPane roads;
-	private JScrollPane junctions;
 	private RoadMapGraph map;
-	
 	private MyTable evQueueTable;
 	private MyTable vehiclesTable;
 	private MyTable roadsTable;
@@ -91,21 +85,23 @@ public class MainFrame extends JFrame implements SimulatorListener{
 			throws SimulatorExc, NegativeArgExc, IOException {
 		super("Traffic Simulator");
 		this.ctrl = ctrl;
-		ctrl.run(1, false); //cuidadín
+		//para cuando no se propociona archivo no arranca el roadmap
+		ctrl.run(1, ctrl.isFile()); 
+		//if(ctrl.isFile()) ctrl.readEvs(path);
 		currentFile = inFileName != null ? new File(inFileName) : null;
-		/*
-		reportsOutputStream = new JTextAreaOutputStream(reportsArea,null);
-		ctrl.setOutputStream(reportsOutputStream); 
-		*/
+		
 		ctrl.getSim().addSimulatorListener(this);
 		initGUI();
-		
-		//ctrl.keepRunningSteps(1);
 	}
 	
 	/*
 	 * MÉTODOS DE USO INTERNO EN initGUI()
 	 */
+	
+	private void showFriendlyExc(String s) {
+		JOptionPane.showMessageDialog(
+				null, s, "Error", JOptionPane.ERROR_MESSAGE);
+	}
 	
 	private void saveReport() throws FileNotFoundException {
 		JFileChooser fc = new JFileChooser();
@@ -153,13 +149,13 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private void initEvQueue(){
 		evQueueTable = new MyTable();
-		evQueue = new JScrollPane(evQueueTable);
-		border("Events Queue", evQueue);
-		scroll(evQueue);
+		border("Events Queue", evQueueTable);
 	}
 	
 	private void loadEvQueue(List<Event> e) {
-		evQueueTable.initTable(e);
+		evQueueTable = new MyTable(e);
+		border("Events Queue", evQueueTable);
+		if(upperSplit1 != null)upperSplit1.setRightComponent(evQueueTable);
 	}
 	
 	private void initReportsArea() throws IOException {
@@ -183,47 +179,70 @@ public class MainFrame extends JFrame implements SimulatorListener{
         reportTa.requestFocus();
 	}
 	
-	/*
-	 * He intentado hacer una función para no repetir código
-	 * en los procedimientos que init(algo)Table, pero por alguna
-	 * razón falla al instanciar JScrollPane en un método aparte
-	 */
-	
-	/*
-	 * Inicializa las tablas de objetos
-	 */
 	private void initVTable() throws SimulatorExc {
 		vehiclesTable = new MyTable();
-		vehicles = new JScrollPane(vehiclesTable);
-		border("Vehicles", vehicles);
-		scroll(vehicles);
+		border("Vehicles", vehiclesTable);
 	}
 	
 	private void loadVTable() throws SimulatorExc {
-		vehiclesTable.initTable(ctrl.getSim().getRoadMap().getVehicles());
+		vehiclesTable = new MyTable(ctrl.getSim().getRoadMap().getVehicles());
+		border("Vehicles", vehiclesTable);
+		tableSplit1.setTopComponent(vehiclesTable);
 	}
 	
 	private void initRTable() throws SimulatorExc {
 		roadsTable = new MyTable();
-		roads = new JScrollPane(roadsTable);
-		border("Roads", roads);
-		scroll(roads);
+		border("Roads", roadsTable);
 	} 
 	
 	private void loadRTable() throws SimulatorExc {
-		roadsTable.initTable(ctrl.getSim().getRoadMap().getRoads());
+		roadsTable = new MyTable(ctrl.getSim().getRoadMap().getRoads());
+		border("Roads", roadsTable);
+		tableSplit1.setBottomComponent(roadsTable);
 	}
 	
 	private void initJunTable() throws SimulatorExc {
 		junctionsTable = new MyTable();
-		junctions = new JScrollPane(junctionsTable);
-		border("Junctions", junctions);
-		scroll(junctions);
-		
+		border("Junctions", junctionsTable);
 	}
 	
 	private void loadJunTable() throws SimulatorExc {
-		junctionsTable.initTable(ctrl.getSim().getRoadMap().getJunctions());
+		junctionsTable = new MyTable(
+				ctrl.getSim().getRoadMap().getJunctions());
+		border("Junctions", junctionsTable);
+		tableSplit2.setBottomComponent(junctionsTable);
+	}
+	
+	/*
+	 * Reinicia los componentes (reset)
+	 */
+	
+	private void resetAll() {
+		reportTa.setText("");
+		evEditor.clear();
+		map = new RoadMapGraph();
+		bottomSplit.setRightComponent(map);
+		setSplitPaneSizes();
+		resetTables();
+	}
+	
+	/*
+	 * Reinicia las tablas (reset)
+	 */
+	
+	private void resetTables() {
+		evQueueTable = new MyTable();
+		border("Events Queue", evQueueTable);
+		vehiclesTable = new MyTable();
+		border("Vehicles", vehiclesTable);
+		roadsTable = new MyTable();
+		border("Roads", roadsTable);
+		junctionsTable = new MyTable();
+		border("Junctions", junctionsTable);
+		upperSplit1.setRightComponent(evQueueTable);
+		tableSplit1.setTopComponent(vehiclesTable);
+		tableSplit1.setBottomComponent(roadsTable);
+		tableSplit2.setBottomComponent(junctionsTable);
 	}
 	
 	/*
@@ -235,7 +254,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	}
 
 	private void loadMap() throws SimulatorExc {
-		map.loadRoadMapGraph(ctrl.getSim().getRoadMap());
+		map = new RoadMapGraph(ctrl.getSim().getRoadMap());
+		bottomSplit.setRightComponent(map);
+		setSplitPaneSizes();
 	}
 	
 	/*
@@ -268,8 +289,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 						try {
 							ctrl.readEvs(path); 
 						} catch (IOException e) {
-							// TODO Auto-generated catch block
-							e.printStackTrace();
+							showFriendlyExc("Error al abrir el fichero");
 						}
 					}
 				});
@@ -290,20 +310,18 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				()-> {
 					int howMany = (Integer)steps.getValue();
 					if (howMany <= 0 || howMany >= 100) {
-						JOptionPane.showMessageDialog(
-								null, "Seleccione un número de pasos entre 1 y 99",
-								"Error", JOptionPane.ERROR_MESSAGE);
+						showFriendlyExc(
+								"Seleccione un número de pasos entre 1 y 99");
 					}
+					else if(ctrl.isEmpty())
+						showFriendlyExc(
+								"No hay eventos cargados");
 					else ctrl.keepRunningSteps(howMany);
 				});
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
 				KeyEvent.VK_W, "control W", 
 				()-> ctrl.reset());
-		SimulatorAction generate = new SimulatorAction(
-				"Generate", "report.png", "",
-				KeyEvent.VK_G, "control G", 
-				()-> System.err.println(""));
 		SimulatorAction clearR = new SimulatorAction(
 				"Clear", "clear.png", "Clear reports area",
 				KeyEvent.VK_F, "control F", 
@@ -332,8 +350,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		// add actions to toolbar, and bar to window
 		JToolBar bar = new JToolBar();
 		for(SimulatorAction a: new SimulatorAction[] {
-				save, load, clearE, saveRe, run, reset,
-				generate, clearR, exit}) {
+				save, load, clearE, saveRe, run, reset, clearR, exit}) {
 			bar.add(a);
 		}
 		bar.add(stepsLabel);
@@ -357,7 +374,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		sim.add(reset);		
 		
 		JMenu rep = new JMenu("Reports");
-		rep.add(generate);	
 		rep.add(clearR);
 		
 		JMenuBar menu = new JMenuBar();
@@ -384,17 +400,42 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		initMap();
 	}
 	
-	/*
-	 * Esto lo voy a quitar yo
-	 */
-	private void loadEverything() throws SimulatorExc, IOException {
+	
+	private void loadUpperComponents() throws SimulatorExc, IOException{
 		loadEvEditor();
 		loadEvQueue(ctrl.getSim().getEventQueue());
 		loadReports();
-		loadVTable();
-		loadRTable();
-		loadJunTable();
-		loadMap();
+	}
+	
+	private void loadObjComponents() throws SimulatorExc {
+		if(!ctrl.isEmpty()) {
+			loadVTable();
+			loadRTable();
+			loadJunTable();
+			loadMap();
+		}
+	}
+	
+	private void format() {
+		tableSplit1 = new JSplitPane(
+				JSplitPane.VERTICAL_SPLIT, vehiclesTable, roadsTable);
+		upperSplit1 = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueueTable);
+		tableSplit2 = new JSplitPane(
+				JSplitPane.VERTICAL_SPLIT, tableSplit1, junctionsTable);
+		upperSplit2 = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT, upperSplit1, reportsArea);
+		bottomSplit = new JSplitPane(
+				JSplitPane.HORIZONTAL_SPLIT, tableSplit2, map);
+		mainSplit = new JSplitPane(
+				JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
+		
+		//para redimensionamiento automático
+		for (JSplitPane p : new JSplitPane[] {
+				tableSplit1, tableSplit2, upperSplit1, upperSplit2, 
+				bottomSplit, mainSplit}) {
+			p.setResizeWeight(.5);
+		}
 	}
 	
 	/*
@@ -402,29 +443,17 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 */
 	private void initGUI() throws SimulatorExc, IOException {
 		initEverything();
-		if(!ctrl.isEmpty()) loadEverything();
+		if(!ctrl.isEmpty()) {
+			loadUpperComponents();
+		}
 		addBars();
 		
-		for(JComponent c: new JComponent[] {
+		/*for(JComponent c: new JComponent[] {
 				evEditor, evQueue, reportsArea, vehicles, roads, junctions}){
 			c.setMinimumSize(new Dimension(240, 140));
-		}
+		}*/
 		
-	
-		tableSplit1 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, vehicles, roads); //implementar splitpane ternarios?
-		upperSplit1 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, evEditor, evQueue);
-		tableSplit2 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tableSplit1, junctions);
-		upperSplit2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, upperSplit1, reportsArea);
-		bottomSplit = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tableSplit2, map);
-		mainSplit = new JSplitPane(JSplitPane.VERTICAL_SPLIT, upperSplit2, bottomSplit);
-		
-		//para redimensionamiento automático
-		for (JSplitPane p : new JSplitPane[] {
-				tableSplit1, tableSplit2, upperSplit1, upperSplit2, bottomSplit, mainSplit}) {
-			p.setResizeWeight(.5);
-		}
-		
-		//meter esto en otro método fuera de initgui formatear()?
+		format();
 
 		add(mainSplit, BorderLayout.CENTER);
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -453,14 +482,18 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	@Override
 	public void registered(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
+		try {
+			loadObjComponents();
+		} catch (SimulatorExc e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 	@Override
 	public void reset(UpdateEvent ue) {
-		// TODO Auto-generated method stub
-		
+		resetAll();
+		timer.setText("0");
 	}
 
 	@Override
@@ -471,21 +504,20 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	@Override
 	public void advanced(UpdateEvent ue) {
 		try {
-			loadEverything();
+			loadObjComponents();
+			loadReports();
+			timer.setText(String.valueOf(ctrl.getSim().getSimTime()));
 		} catch (SimulatorExc e) {
-			JOptionPane.showMessageDialog(
-					null, e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
-			//e.printStackTrace();
+			showFriendlyExc(e.getMessage());
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		int t = Integer.valueOf(timer.getText());
-		timer.setText(String.valueOf(t));
 	}
 
 	@Override
 	public void error(UpdateEvent ue, String error) {
-		JOptionPane.showMessageDialog(null, error, "Error", JOptionPane.ERROR_MESSAGE);
+		showFriendlyExc(error);
 	}
+
 }

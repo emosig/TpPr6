@@ -136,11 +136,11 @@ public class Simulator {
 	}
 	
 	public void reset() {
-		fireUpdateEvent(EventType.RESET, "");
 		//reset
 		simTime = 0;
 		m = new RoadMap();
 		evs = new MultiTreeMap<>();
+		fireUpdateEvent(EventType.RESET, "");
 	}
 	
 	/*
