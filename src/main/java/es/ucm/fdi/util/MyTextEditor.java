@@ -2,12 +2,8 @@ package es.ucm.fdi.util;
 
 import java.awt.BorderLayout;
 import java.awt.Dimension;
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.Scanner;
 
@@ -15,7 +11,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
-import javax.swing.SwingUtilities;
+
+import es.ucm.fdi.exceptions.SimulatorExc;
+import es.ucm.gui.MainFrame;
 
 /*
  * Componente de swing editor de texto
@@ -55,10 +53,12 @@ public class MyTextEditor extends JPanel{
 	/*
 	 * Devuelve la ruta del fichero leído o null
 	 */
-	public String load() {
+	public String load() throws SimulatorExc {
 		int r = fc.showOpenDialog(null);
 		if (r == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
+			if (!file.getName().endsWith(".ini"))
+				throw new SimulatorExc("Formato no soportado");
 			String s = readFile(file);
 			textArea.setText(s);
 			return file.getAbsolutePath();
@@ -81,7 +81,7 @@ public class MyTextEditor extends JPanel{
 		try {
 			s = new Scanner(file).useDelimiter("\\A").next();
 		} catch (FileNotFoundException e) {
-			e.printStackTrace();
+			MainFrame.showFriendlyExc("Archivo no encontrado");
 		}
 		return s;
 	}

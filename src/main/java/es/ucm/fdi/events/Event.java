@@ -5,7 +5,6 @@ import java.util.Map;
 
 import es.ucm.fdi.exceptions.IdException;
 import es.ucm.fdi.exceptions.MissingObjectExc;
-import es.ucm.fdi.util.Describable;
 import es.ucm.fdi.util.DescribableEntity;
 import es.ucm.sim.Simulator;
 import es.ucm.sim.obj.Junction;

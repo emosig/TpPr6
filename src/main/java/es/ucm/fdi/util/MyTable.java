@@ -1,18 +1,14 @@
 package es.ucm.fdi.util;
 
 import java.awt.BorderLayout;
-import java.awt.Component;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableCellRenderer;
-import javax.swing.table.TableColumnModel;
 
 /*
  * Componente de swing para mostrar tablas con filas de DescribableEntity

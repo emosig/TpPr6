@@ -21,7 +21,6 @@ public class Controller {
 	private Simulator sim;
 	private InputStream in;
 	private OutputStream out;
-	private int ticks;
 	private String eventsForDisplay;
 	private boolean emptySim; 
 	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
@@ -35,7 +34,6 @@ public class Controller {
 	public Controller(InputStream in, OutputStream out, int ticks) {
 		this.in = in;
 		this.out = out;
-		this.ticks = ticks;
 		isThereFile = true;
 	}
 	
@@ -56,7 +54,6 @@ public class Controller {
 	
 	private void construct(int initialTicks) throws IOException {
 		emptySim = true;
-		ticks = initialTicks;
 		File outFile = new File(OUTFILE);
 		outFile.createNewFile();
 		out = new FileOutputStream(outFile);

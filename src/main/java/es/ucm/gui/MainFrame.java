@@ -1,30 +1,24 @@
 package es.ucm.gui;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ComponentAdapter;
 import java.awt.event.ComponentEvent;
 import java.awt.event.KeyEvent;
-import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.util.List;
 
-import javax.swing.JCheckBoxMenuItem;
 import javax.swing.JComponent;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
-import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -33,11 +27,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
-
-import com.sun.javafx.event.EventQueue;
 
 import es.ucm.fdi.control.Controller;
 import es.ucm.fdi.control.SimulatorAction;
@@ -68,6 +58,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private JLabel status;
 	private JTextField timer;
 	private JSpinner steps;
+	private JPanel lowerBar;
 	
 	private JSplitPane tableSplit1;
 	private JSplitPane tableSplit2;
@@ -75,8 +66,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private JSplitPane upperSplit1;
 	private JSplitPane upperSplit2;
 	private JSplitPane mainSplit;
-	
-	private File currentFile;
 
 	
 	private static final Dimension MINSIZE = new Dimension(100, 60);
@@ -86,22 +75,19 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		super("Traffic Simulator");
 		this.ctrl = ctrl;
 		//para cuando no se propociona archivo no arranca el roadmap
-		ctrl.run(1, ctrl.isFile()); 
-		//if(ctrl.isFile()) ctrl.readEvs(path);
-		currentFile = inFileName != null ? new File(inFileName) : null;
-		
+		ctrl.run(1, ctrl.isFile());
 		ctrl.getSim().addSimulatorListener(this);
 		initGUI();
+	}
+	
+	public static void showFriendlyExc(String s) {
+		JOptionPane.showMessageDialog(
+				null, s, "Error", JOptionPane.ERROR_MESSAGE);
 	}
 	
 	/*
 	 * MÉTODOS DE USO INTERNO EN initGUI()
 	 */
-	
-	private void showFriendlyExc(String s) {
-		JOptionPane.showMessageDialog(
-				null, s, "Error", JOptionPane.ERROR_MESSAGE);
-	}
 	
 	private void saveReport() throws FileNotFoundException {
 		JFileChooser fc = new JFileChooser();
@@ -276,22 +262,25 @@ public class MainFrame extends JFrame implements SimulatorListener{
 					try {
 						evEditor.save();
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						showFriendlyExc("Archivo no encontrado");
 					}
 				});
 		SimulatorAction load = new SimulatorAction(
 				"Load Events", "open.png", "Load events from file",
 				KeyEvent.VK_L, "control L", 
 				()-> {
-					String path = evEditor.load();
-					if(ctrl.isEmpty()) {
-						try {
-							ctrl.readEvs(path); 
-						} catch (IOException e) {
-							showFriendlyExc("Error al abrir el fichero");
+					String path;
+					try {
+						path = evEditor.load();
+						if(ctrl.isEmpty()) {
+							ctrl.readEvs(path);  
 						}
+					} catch (SimulatorExc e1) {
+						showFriendlyExc(e1.getMessage());
+					}catch (IOException e) {
+						showFriendlyExc("Error al abrir el fichero");
 					}
+					
 				});
 		SimulatorAction saveRe = new SimulatorAction(
 				"Save Report", "save_report.png", "Save current report",
@@ -300,8 +289,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 					try {
 						saveReport();
 					} catch (FileNotFoundException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
+						showFriendlyExc("Archivo no encontrado");
 					}
 				});
 		SimulatorAction run = new SimulatorAction(
@@ -383,9 +371,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		setJMenuBar(menu);
 		
 		//lower bar
-		JPanel lowerBar = new JPanel();
+		lowerBar = new JPanel();
 		add(lowerBar, BorderLayout.SOUTH);
-		status = new JLabel("test"/*, SwingConstants.LEFT*/);
+		status = new JLabel("Simulador de tráfico");
 		lowerBar.add(status);
 
 	}
@@ -465,6 +453,10 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				setSplitPaneSizes();
 			}
 		});
+		if(!ctrl.isFile())
+			JOptionPane.showMessageDialog(
+				null, "Simulador 'vacío'\nCargue un archivo para comenzar",
+				"Popup amistoso", JOptionPane.INFORMATION_MESSAGE);
 	}
 	
 	private void setSplitPaneSizes() {
@@ -484,9 +476,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	public void registered(UpdateEvent ue) {
 		try {
 			loadObjComponents();
+			status.setText("Simulación iniciada con éxito");
 		} catch (SimulatorExc e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showFriendlyExc("Error en el acceso al simulador");
 		}
 	}
 
@@ -494,6 +486,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	public void reset(UpdateEvent ue) {
 		resetAll();
 		timer.setText("0");
+		status.setText("Simulación reiniciada");
 	}
 
 	@Override
@@ -510,8 +503,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		} catch (SimulatorExc e) {
 			showFriendlyExc(e.getMessage());
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			showFriendlyExc("Ha ocurrido un error en la lectura del archivo");;
 		}
 	}
 
