@@ -1,4 +1,0 @@
-Eloy Mósig García
-
-GitHub: https://github.com/emosig/TpPr4
-El commit correspondiente a esta entrega es el último commit realizado "Revisión de estilo y más correción de errores"
