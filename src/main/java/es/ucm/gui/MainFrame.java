@@ -27,6 +27,7 @@ import javax.swing.JSplitPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JToolBar;
+import javax.swing.SwingUtilities;
 import javax.swing.border.TitledBorder;
 
 import es.ucm.fdi.control.Controller;
@@ -298,14 +299,19 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				KeyEvent.VK_Q, "control Q", 
 				()-> {
 					int howMany = (Integer)steps.getValue();
+					int howMuchDelay = (Integer)delay.getValue();
 					if (howMany <= 0 || howMany >= 100) {
 						showFriendlyExc(
 								"Seleccione un número de pasos entre 1 y 99");
 					}
-					else if(ctrl.isEmpty())
+					if (howMany <= 0 || howMany >= 10000) {
+						showFriendlyExc(
+								"Seleccione un valor de retardo entre 1 y 9999");
+					}
+					if(ctrl.isEmpty())
 						showFriendlyExc(
 								"No hay eventos cargados");
-					else ctrl.keepRunningSteps(howMany);
+					else ctrl.keepRunningSteps(howMany, howMuchDelay);
 				});
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
@@ -322,7 +328,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		SimulatorAction stop = new SimulatorAction(
 				"Stop", "stop.png", "Stops simulation thread",
 				KeyEvent.VK_T, "control T", 
-				()-> /*quelque chose*/System.out.println("provisional"));
+				()-> ctrl.forceStop());
 
 		// inicializo los cuadros de time, steps y delay
 		delay = new JSpinner();
@@ -485,37 +491,43 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	@Override
 	public void registered(UpdateEvent ue) {
-		try {
-			loadObjComponents();
-			status.setText("Simulación iniciada con éxito");
-		} catch (SimulatorExc e) {
-			showFriendlyExc("Error en el acceso al simulador");
-		}
+		SwingUtilities.invokeLater(()->{
+			try {
+				loadObjComponents();
+				status.setText("Simulación iniciada con éxito");
+			} catch (SimulatorExc e) {
+				showFriendlyExc("Error en el acceso al simulador");
+			}
+		});
 	}
 
 	@Override
 	public void reset(UpdateEvent ue) {
-		resetAll();
-		timer.setText("0");
-		status.setText("Simulación reiniciada");
+		SwingUtilities.invokeLater(()->{
+			resetAll();
+			timer.setText("0");
+			status.setText("Simulación reiniciada");
+		});
 	}
 
 	@Override
 	public void newEvent(UpdateEvent ue) {
-		loadEvQueue(ue.getEventQueue());	
+		SwingUtilities.invokeLater(()->loadEvQueue(ue.getEventQueue()));	
 	}
 
 	@Override
 	public void advanced(UpdateEvent ue) {
-		try {
-			loadObjComponents();
-			loadReports();
-			timer.setText(String.valueOf(ctrl.getSim().getSimTime()));
-		} catch (SimulatorExc e) {
-			showFriendlyExc(e.getMessage());
-		} catch (IOException e) {
-			showFriendlyExc("Ha ocurrido un error en la lectura del archivo");;
-		}
+		SwingUtilities.invokeLater(()->{
+			try {
+				loadObjComponents();
+				loadReports();
+				timer.setText(String.valueOf(ctrl.getSim().getSimTime()));
+			} catch (SimulatorExc e) {
+				showFriendlyExc(e.getMessage());
+			} catch (IOException e) {
+				showFriendlyExc("Ha ocurrido un error en la lectura del archivo");;
+			}
+		});
 	}
 
 	@Override

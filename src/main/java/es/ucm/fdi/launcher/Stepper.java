@@ -4,23 +4,39 @@ public class Stepper {
 	private Runnable before;
 	private Runnable during;
 	private Runnable after;
-	private int delay;
+	private boolean forceStop;
 	
 	public Stepper(Runnable before, Runnable during, Runnable after) {
 		this.before = before;
 		this.during = during;
 		this.after = after;
+		forceStop = false;
 	}
 	
-	public void execute(int delay, int steps) {
+	public void run(int delay, int steps) {
 		new Thread(()->{
-			
-		});
-		before.run();
-		while(condition) {
-			during.run();
-			Thread.sleep(delay);
-		}
-		after.run();
+			before.run();
+			int currentSteps = 0;
+			try {
+				while(!forceStop && currentSteps < steps) {
+					during.run();
+					Thread.sleep(delay);
+					++currentSteps;
+					
+					//debug
+					System.out.println(currentSteps);
+					
+				}
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} finally {
+				after.run();
+			}
+		}).start();
+	}
+	
+	public void stop() {
+		forceStop = true;
 	}
 }

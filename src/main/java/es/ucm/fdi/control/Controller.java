@@ -11,6 +11,7 @@ import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
+import es.ucm.fdi.launcher.Stepper;
 import es.ucm.model.sim.Simulator;
 
 /*
@@ -19,6 +20,7 @@ import es.ucm.model.sim.Simulator;
  */
 public class Controller {
 	private Simulator sim;
+	private Stepper stepper;
 	private InputStream in;
 	private OutputStream out;
 	private String eventsForDisplay;
@@ -41,7 +43,9 @@ public class Controller {
 	 * Constructoras para modo GUI
 	 */
 	public Controller(InputStream in, int initialTicks) throws  IOException {
-		if(in != null) this.in = in;
+		if(in != null) {
+			 this.in = in;
+		}
 		isThereFile = true;
 		construct(initialTicks);
 	}
@@ -68,7 +72,9 @@ public class Controller {
 	}
 	
 	public Simulator getSim() throws SimulatorExc {
-		if(sim == null) throw new SimulatorExc();
+		if(sim == null) {
+			throw new SimulatorExc();
+		}
 		else return sim;
 	}
 	
@@ -77,7 +83,9 @@ public class Controller {
 	 * Controla que ya se ha llamado a readEvs
 	 */
 	public String getEventsDisplay() throws SimulatorExc {
-		if(!emptySim)	return eventsForDisplay;
+		if(!emptySim) {
+			return eventsForDisplay;
+		}
 		else throw new SimulatorExc("No hay eventos cargados");
 	}
 	
@@ -94,14 +102,16 @@ public class Controller {
 		}; 
 		eventsForDisplay = ini.toString();
 		emptySim = false;
-		for(IniSection is: ini.getSections())
-			 for(EventBuilder eb: traducc) {
+		for(IniSection is: ini.getSections()) {
+			for(EventBuilder eb: traducc) {
 				 Event evt = eb.parse(is);
-				 if(evt != null) 
-					 //si no coincide con ningún nombre, 
+				 if(evt != null) {
+					//si no coincide con ningún nombre, 
 					 //no se inserta en ningún sitio y a correr
 					 sim.insertaEvento(evt);
+				 }	 
 			 }
+		} 
 	}
 	
 	/*
@@ -116,8 +126,9 @@ public class Controller {
 	public void run(int t, boolean limit) {
 		try {
 			initSim(t);
-			if(limit) keepRunning(t);
-			//else keepRunningSteps(t);
+			if(limit) {
+				keepRunning(t);
+			}
 		} catch (NegativeArgExc e) {
 		} catch (IOException e) {
 			System.out.println("Error en la lectura de eventos");
@@ -126,7 +137,9 @@ public class Controller {
 	
 	private void initSim(int t) throws NegativeArgExc, IOException {
 		sim = new Simulator(t);
-		if(isThereFile) readEvs(new Ini(in));
+		if(isThereFile) {
+			readEvs(new Ini(in));
+		}
 	}
 	
 	/*
@@ -140,7 +153,22 @@ public class Controller {
 	 * Ejecuta un número de pasos
 	 */
 	public void keepRunningSteps(int t) {
-		sim.ejecutaSteps(t, out);
+		keepRunningSteps(t, 50); //un valor arbitrario por defecto
+	}
+	
+	public void keepRunningSteps(int t, int delay) {
+		stepper = new Stepper(
+				()->System.out.println("algo"),
+				()->sim.ejecutaSteps(1, out),
+				()->System.out.println("algo"));
+		stepper.run(delay, t);
+	}
+	
+	/*
+	 * Detiene el Stepper
+	 */
+	public void forceStop() {
+		stepper.stop();
 	}
 	
 	public void reset() {
