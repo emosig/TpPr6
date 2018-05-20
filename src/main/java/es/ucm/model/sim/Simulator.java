@@ -1,4 +1,4 @@
-package es.ucm.sim;
+package es.ucm.model.sim;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -16,7 +16,7 @@ import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.ini.IniSection;
 import es.ucm.fdi.util.MultiTreeMap;
 import es.ucm.model.SimulatorListener;
-import es.ucm.sim.obj.*;
+import es.ucm.model.sim.obj.*;
 
 /*
  * 	Clase principal del simulador

@@ -1,4 +1,4 @@
-package es.ucm.sim.obj;
+package es.ucm.model.sim.obj;
 
 import static java.lang.Math.toIntExact;
 

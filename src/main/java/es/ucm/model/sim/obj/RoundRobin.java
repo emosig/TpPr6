@@ -1,4 +1,4 @@
-package es.ucm.sim.obj;
+package es.ucm.model.sim.obj;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ucm.fdi.exceptions.IdException;
-import es.ucm.sim.obj.Junction.RoadEnd;
 
 /*
  * Ni idea de cómo se dice RoundRobin en español

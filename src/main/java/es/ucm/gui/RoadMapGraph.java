@@ -18,10 +18,8 @@ import es.ucm.fdi.extra.graphlayout.Edge;
 import es.ucm.fdi.extra.graphlayout.Graph;
 import es.ucm.fdi.extra.graphlayout.GraphComponent;
 import es.ucm.fdi.extra.graphlayout.Node;
-import es.ucm.sim.RoadMap;
-import es.ucm.sim.obj.Junction;
-import es.ucm.sim.obj.Road;
-import es.ucm.sim.obj.Vehicle;
+import es.ucm.model.sim.RoadMap;
+import es.ucm.model.sim.obj.*;
 
 /*
  * Componente de swing para el roadmap gráfico

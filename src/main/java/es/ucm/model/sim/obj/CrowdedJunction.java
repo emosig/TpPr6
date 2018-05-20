@@ -1,4 +1,4 @@
-package es.ucm.sim.obj;
+package es.ucm.model.sim.obj;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import es.ucm.fdi.exceptions.IdException;
-import es.ucm.sim.obj.Junction.RoadEnd;
 
 public class CrowdedJunction extends Junction {
 	

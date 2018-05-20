@@ -1,6 +1,6 @@
 package es.ucm.model;
 
-import es.ucm.sim.Simulator.UpdateEvent;
+import es.ucm.model.sim.Simulator.UpdateEvent;
 
 /*
  * Lo implementan las clases que se "suscriben" al simulador

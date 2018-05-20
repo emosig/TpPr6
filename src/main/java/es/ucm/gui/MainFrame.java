@@ -37,7 +37,7 @@ import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.util.MyTable;
 import es.ucm.fdi.util.MyTextEditor;
 import es.ucm.model.SimulatorListener;
-import es.ucm.sim.Simulator.UpdateEvent;
+import es.ucm.model.sim.Simulator.UpdateEvent;
 
 /*
  * Clase principal de la vista del simulador. La llamada al controlador
@@ -57,6 +57,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private JTextArea reportTa;
 	private JLabel status;
 	private JTextField timer;
+	private JSpinner delay;
 	private JSpinner steps;
 	private JPanel lowerBar;
 	
@@ -318,8 +319,15 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				"Clear", "clear.png", "Clear events area",
 				KeyEvent.VK_E, "control E", 
 				()-> evEditor.clear());
+		SimulatorAction stop = new SimulatorAction(
+				"Stop", "stop.png", "Stops simulation thread",
+				KeyEvent.VK_T, "control T", 
+				()-> /*quelque chose*/System.out.println("provisional"));
 
-		// inicializo los cuadros de time y steps
+		// inicializo los cuadros de time, steps y delay
+		delay = new JSpinner();
+		delay.setPreferredSize(new Dimension(50, 5));
+		delay.setValue(0);
 		steps = new JSpinner();
 		steps.setPreferredSize(new Dimension(50, 5));
 		try {
@@ -332,15 +340,18 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		timer.setPreferredSize(new Dimension(50, 5));
 		timer.setEnabled(false);
 		
+		JLabel delayLabel = new JLabel("Delay ");
 		JLabel stepsLabel = new JLabel("Steps ");
 		JLabel timerLabel = new JLabel("Time: ");
 		
 		// add actions to toolbar, and bar to window
 		JToolBar bar = new JToolBar();
 		for(SimulatorAction a: new SimulatorAction[] {
-				save, load, clearE, saveRe, run, reset, clearR, exit}) {
+				save, load, clearE, saveRe, run, stop, reset, clearR, exit}) {
 			bar.add(a);
 		}
+		bar.add(delayLabel);
+		bar.add(delay);
 		bar.add(stepsLabel);
 		bar.add(steps);
 		bar.add(timerLabel);

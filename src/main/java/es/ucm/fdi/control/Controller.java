@@ -11,7 +11,7 @@ import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
-import es.ucm.sim.Simulator;
+import es.ucm.model.sim.Simulator;
 
 /*
  * 	Clase principal del modelo, llamada desde el main. Llama al simulador

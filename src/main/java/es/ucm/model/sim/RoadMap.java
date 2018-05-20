@@ -1,4 +1,4 @@
-package es.ucm.sim;
+package es.ucm.model.sim;
 
 import java.util.List;
 import java.util.ArrayList;
@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import es.ucm.fdi.exceptions.MissingObjectExc;
-import es.ucm.sim.obj.*;
+import es.ucm.model.sim.obj.*;
 
 /*
  * 	Clase que conecta todos los objetos en simulación

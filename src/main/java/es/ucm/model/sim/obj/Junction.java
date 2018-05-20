@@ -1,4 +1,4 @@
-package es.ucm.sim.obj;
+package es.ucm.model.sim.obj;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;

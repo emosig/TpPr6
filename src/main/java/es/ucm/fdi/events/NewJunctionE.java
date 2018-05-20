@@ -4,10 +4,10 @@ import java.util.ArrayList;
 import java.util.Map;
 
 import es.ucm.fdi.ini.IniSection;
-import es.ucm.sim.Simulator;
-import es.ucm.sim.obj.Junction;
-import es.ucm.sim.obj.Road;
-import es.ucm.sim.obj.Vehicle;
+import es.ucm.model.sim.Simulator;
+import es.ucm.model.sim.obj.Junction;
+import es.ucm.model.sim.obj.Road;
+import es.ucm.model.sim.obj.Vehicle;
 
 /*
  * 	Evento para nuevo cruce

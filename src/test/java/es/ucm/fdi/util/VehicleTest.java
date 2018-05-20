@@ -2,9 +2,9 @@ package es.ucm.fdi.util;
 
 import org.junit.Test;
 
-import es.ucm.sim.obj.Junction;
-import es.ucm.sim.obj.Road;
-import es.ucm.sim.obj.Vehicle;
+import es.ucm.model.sim.obj.Junction;
+import es.ucm.model.sim.obj.Road;
+import es.ucm.model.sim.obj.Vehicle;
 
 import static org.junit.Assert.*;
 
