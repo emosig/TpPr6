@@ -273,6 +273,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				()-> {
 					String path;
 					try {
+						ctrl.reset();
 						path = evEditor.load();
 						if(ctrl.isEmpty()) {
 							ctrl.readEvs(path);  
@@ -308,10 +309,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 						showFriendlyExc(
 								"Seleccione un valor de retardo entre 1 y 9999");
 					}
-					if(ctrl.isEmpty())
-						showFriendlyExc(
-								"No hay eventos cargados");
-					else ctrl.keepRunningSteps(howMany, howMuchDelay);
+					ctrl.keepRunningSteps(howMany, howMuchDelay);
 				});
 		SimulatorAction reset = new SimulatorAction(
 				"Reset", "reset.png", "Reset simulation",
@@ -448,7 +446,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 */
 	private void initGUI() throws SimulatorExc, IOException {
 		initEverything();
-		if(!ctrl.isEmpty()) {
+		if(!ctrl.isEvsEmpty()) {
 			loadUpperComponents();
 		}
 		addBars();

@@ -28,6 +28,7 @@ public class Simulator {
 	private MultiTreeMap<Integer, Event> evs;
 	private RoadMap m;
 	private List<SimulatorListener> listeners;
+	private boolean accessRoadMap;
 	
 	public enum EventType{
 		REGISTERED, RESET, NEW_EVENT, ADVANCED, ERROR
@@ -70,17 +71,23 @@ public class Simulator {
 	}
 	
 	public Simulator(int t) throws NegativeArgExc{
-		if(t <= 0) 
+		if(t <= 0) {
 			throw new NegativeArgExc("Pasos de simulación negativos o 0");
+		}
 		simTime = 0;
 		limit = t;
 		m = new RoadMap();
 		evs = new MultiTreeMap<>();
 		listeners  = new ArrayList<>();
+		accessRoadMap = false;
 	}
 	
 	public int getSimTime() {
 		return simTime;
+	}
+	
+	public boolean canAccessRM() {
+		return !m.isEmpty();
 	}
 	
 	public RoadMap getRoadMap() {
@@ -92,7 +99,9 @@ public class Simulator {
 	}
 	
 	public boolean insertaEvento(Event e) {
-		if(e.getTime() < simTime) return false;
+		if(e.getTime() < simTime) {
+			return false;
+		}
 		fireUpdateEvent(EventType.NEW_EVENT, "");
 		evs.putValue(e.getTime(), e);
 		return true;
@@ -158,9 +167,9 @@ public class Simulator {
 				try {
 					e.ejecuta(this, js, rs, vs);
 				} catch (MissingObjectExc e1) {
-					e1.printStackTrace();
+					fireUpdateEvent(EventType.ERROR, e1.getMessage());
 				} catch (IdException e1) {
-					e1.printStackTrace();
+					fireUpdateEvent(EventType.ERROR, e1.getMessage());
 				}	
 				//añado objetos al roadmap
 				for(Junction j: js) m.addJunction(j);
@@ -177,7 +186,7 @@ public class Simulator {
 			try {
 				j.avanza();
 			} catch (IdException e2) {
-				e2.printStackTrace();
+				fireUpdateEvent(EventType.ERROR, e2.getMessage());
 			}
 		}
 		
@@ -196,7 +205,7 @@ public class Simulator {
 				for(SimObj v: m.getVehicles())
 					writeReport(v, out);
 			} catch (IOException e1) {
-				System.out.println("Error en la escritura");
+				fireUpdateEvent(EventType.ERROR, "Error en la escritura");
 			}
 		}
 	}

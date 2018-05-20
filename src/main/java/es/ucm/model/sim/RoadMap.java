@@ -122,4 +122,8 @@ public class RoadMap {
 			vehiclesRO = Collections.unmodifiableList(vehicles);
 		}
 	}
+	
+	public boolean isEmpty() {
+		return simObjects.size() == 0;
+	}
 }

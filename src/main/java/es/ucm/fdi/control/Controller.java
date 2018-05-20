@@ -24,6 +24,7 @@ public class Controller {
 	private InputStream in;
 	private OutputStream out;
 	private String eventsForDisplay;
+	//true si hay eventos cargados, falso si no
 	private boolean emptySim; 
 	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
 	private boolean isThereFile;
@@ -63,7 +64,17 @@ public class Controller {
 		out = new FileOutputStream(outFile);
 	}
 	
+	/*
+	 * Comprueba que se puede acceder a los datos de los objetos de simulación
+	 */
 	public boolean isEmpty() {
+		return !sim.canAccessRM();
+	}
+	
+	/*
+	 * Comprueba que hay eventos cargados
+	 */
+	public boolean isEvsEmpty() {
 		return emptySim;
 	}
 	
@@ -127,7 +138,7 @@ public class Controller {
 		try {
 			initSim(t);
 			if(limit) {
-				keepRunning(t);
+				//keepRunning(t);
 			}
 		} catch (NegativeArgExc e) {
 		} catch (IOException e) {
@@ -152,10 +163,6 @@ public class Controller {
 	/*
 	 * Ejecuta un número de pasos
 	 */
-	public void keepRunningSteps(int t) {
-		keepRunningSteps(t, 50); //un valor arbitrario por defecto
-	}
-	
 	public void keepRunningSteps(int t, int delay) {
 		stepper = new Stepper(
 				()->System.out.println("algo"),
