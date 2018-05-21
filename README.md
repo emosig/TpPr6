@@ -1,2 +1,2 @@
 # TpPr4
-Práctica 4 Tecnología de la Programación UCM
+Práctica 6 Tecnología de la Programación UCM
