@@ -267,24 +267,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 						showFriendlyExc("Archivo no encontrado");
 					}
 				});
-		SimulatorAction load = new SimulatorAction(
-				"Load Events", "open.png", "Load events from file",
-				KeyEvent.VK_L, "control L", 
-				()-> {
-					String path;
-					try {
-						ctrl.reset();
-						path = evEditor.load();
-						if(ctrl.isEmpty()) {
-							ctrl.readEvs(path);  
-						}
-					} catch (SimulatorExc e1) {
-						showFriendlyExc(e1.getMessage());
-					}catch (IOException e) {
-						showFriendlyExc("Error al abrir el fichero");
-					}
-					
-				});
 		SimulatorAction saveRe = new SimulatorAction(
 				"Save Report", "save_report.png", "Save current report",
 				KeyEvent.VK_R, "control R", 
@@ -295,6 +277,32 @@ public class MainFrame extends JFrame implements SimulatorListener{
 						showFriendlyExc("Archivo no encontrado");
 					}
 				});
+		SimulatorAction clearR = new SimulatorAction(
+				"Clear", "clear.png", "Clear reports area",
+				KeyEvent.VK_F, "control F", 
+				()-> reportTa.setText(null));
+		SimulatorAction clearE = new SimulatorAction(
+				"Clear", "clear.png", "Clear events area",
+				KeyEvent.VK_E, "control E", 
+				()-> evEditor.clear());
+		SimulatorAction reset = new SimulatorAction(
+				"Reset", "reset.png", "Reset simulation",
+				KeyEvent.VK_W, "control W", 
+				()-> {
+					try {
+						ctrl.reset(false);
+					} catch (NegativeArgExc | IOException e) {
+						showFriendlyExc("Error al recuperar el simulador");
+					}
+					for(SimulatorAction a: new SimulatorAction[] {
+							save, clearE, saveRe, clearR}) {
+						a.setEnabled(false);
+					}
+				});
+		SimulatorAction stop = new SimulatorAction(
+				"Stop", "stop.png", "Stops simulation thread",
+				KeyEvent.VK_T, "control T", 
+				()-> ctrl.forceStop());
 		SimulatorAction run = new SimulatorAction(
 				"Run", "play.png", "Start simulation",
 				KeyEvent.VK_Q, "control Q", 
@@ -304,29 +312,56 @@ public class MainFrame extends JFrame implements SimulatorListener{
 					if (howMany <= 0 || howMany >= 100) {
 						showFriendlyExc(
 								"Seleccione un número de pasos entre 1 y 99");
+						return;
 					}
 					if (howMany <= 0 || howMany >= 10000) {
 						showFriendlyExc(
 								"Seleccione un valor de retardo entre 1 y 9999");
+						return;
 					}
-					ctrl.keepRunningSteps(howMany, howMuchDelay);
+					SimulatorAction[] lista = {
+						save, clearE, saveRe, reset, clearR};
+					try {
+						ctrl.keepRunningSteps(howMany, howMuchDelay,
+								()->{
+									for(SimulatorAction a: lista) {
+										a.setEnabled(false);
+									}
+									stop.setEnabled(true);
+							 }, ()->{
+									for(SimulatorAction a: lista) {
+										a.setEnabled(true);
+									}
+									stop.setEnabled(false);
+								});
+					} catch (SimulatorExc e) {
+						showFriendlyExc(
+								"Cargue un archivo de eventos");
+					}
+					
 				});
-		SimulatorAction reset = new SimulatorAction(
-				"Reset", "reset.png", "Reset simulation",
-				KeyEvent.VK_W, "control W", 
-				()-> ctrl.reset());
-		SimulatorAction clearR = new SimulatorAction(
-				"Clear", "clear.png", "Clear reports area",
-				KeyEvent.VK_F, "control F", 
-				()-> reportTa.setText(null));
-		SimulatorAction clearE = new SimulatorAction(
-				"Clear", "clear.png", "Clear events area",
-				KeyEvent.VK_E, "control E", 
-				()-> evEditor.clear());
-		SimulatorAction stop = new SimulatorAction(
-				"Stop", "stop.png", "Stops simulation thread",
-				KeyEvent.VK_T, "control T", 
-				()-> ctrl.forceStop());
+		SimulatorAction load = new SimulatorAction(
+				"Load Events", "open.png", "Load events from file",
+				KeyEvent.VK_L, "control L", 
+				()-> {
+					String path;
+					try {
+						ctrl.reset(true);
+						path = evEditor.load();
+						if(ctrl.isEmpty()) {
+							ctrl.readEvs(path);  
+						}
+						loadUpperComponents();
+						save.setEnabled(true);
+						clearE.setEnabled(true);
+						run.setEnabled(true);
+					} catch (SimulatorExc e1) {
+						showFriendlyExc(e1.getMessage());
+					} catch (IOException | NegativeArgExc e) {
+						showFriendlyExc("Error al abrir el fichero");
+					}
+				});
+		
 
 		// inicializo los cuadros de time, steps y delay
 		delay = new JSpinner();
@@ -361,7 +396,19 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		bar.add(timerLabel);
 		bar.add(timer);
 		add(bar, BorderLayout.NORTH);
-
+		
+		// condiciones iniciales de los botones
+		for(SimulatorAction a: new SimulatorAction[] {
+				saveRe, stop, reset, clearR}) {
+			a.setEnabled(false);
+		}
+		if(!ctrl.isFile()) {
+			//estos están a true si se carga un archivo
+			save.setEnabled(false);
+			clearE.setEnabled(false);
+			run.setEnabled(false);
+		}
+		
 		// add actions to menubar, and bar to window
 		JMenu file = new JMenu("File");
 		file.add(load);		
@@ -412,10 +459,16 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private void loadObjComponents() throws SimulatorExc {
 		if(!ctrl.isEmpty()) {
-			loadVTable();
-			loadRTable();
-			loadJunTable();
-			loadMap();
+			SwingUtilities.invokeLater(()->{
+				try {
+					loadVTable();
+					loadRTable();
+					loadJunTable();
+					loadMap();
+				} catch (SimulatorExc e) {
+					showFriendlyExc("Error en el acceso al simulador");
+				}
+			});
 		}
 	}
 	
@@ -449,13 +502,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 		if(!ctrl.isEvsEmpty()) {
 			loadUpperComponents();
 		}
-		addBars();
-		
-		/*for(JComponent c: new JComponent[] {
-				evEditor, evQueue, reportsArea, vehicles, roads, junctions}){
-			c.setMinimumSize(new Dimension(240, 140));
-		}*/
-		
+		addBars();		
 		format();
 
 		add(mainSplit, BorderLayout.CENTER);

@@ -24,6 +24,7 @@ public class Controller {
 	private InputStream in;
 	private OutputStream out;
 	private String eventsForDisplay;
+	private boolean justResetted;
 	//true si hay eventos cargados, falso si no
 	private boolean emptySim; 
 	//para cuando ejecuto el modo GUI sin pasar un archivo inicial
@@ -38,6 +39,7 @@ public class Controller {
 		this.in = in;
 		this.out = out;
 		isThereFile = true;
+		justResetted = false;
 	}
 	
 	/*
@@ -58,6 +60,7 @@ public class Controller {
 	}
 	
 	private void construct(int initialTicks) throws IOException {
+		justResetted = false;
 		emptySim = true;
 		File outFile = new File(OUTFILE);
 		outFile.createNewFile();
@@ -137,9 +140,6 @@ public class Controller {
 	public void run(int t, boolean limit) {
 		try {
 			initSim(t);
-			if(limit) {
-				//keepRunning(t);
-			}
 		} catch (NegativeArgExc e) {
 		} catch (IOException e) {
 			System.out.println("Error en la lectura de eventos");
@@ -163,11 +163,20 @@ public class Controller {
 	/*
 	 * Ejecuta un número de pasos
 	 */
-	public void keepRunningSteps(int t, int delay) {
+	public void keepRunningSteps(int t, int delay) throws SimulatorExc {
+		keepRunningSteps(t, delay, 
+				()->System.out.println(""), ()->System.out.println(""));
+	}
+	
+	public void keepRunningSteps(
+			int t, int delay, Runnable before, Runnable after) 
+					throws SimulatorExc {
+		if(justResetted) {
+			justResetted = false;
+			throw new SimulatorExc("Cargue un archivo de eventos");
+		}
 		stepper = new Stepper(
-				()->System.out.println("algo"),
-				()->sim.ejecutaSteps(1, out),
-				()->System.out.println("algo"));
+				before,	()->sim.ejecutaSteps(1, out), after);
 		stepper.run(delay, t);
 	}
 	
@@ -178,8 +187,17 @@ public class Controller {
 		stepper.stop();
 	}
 	
-	public void reset() {
+	/*
+	 * Si se llama desde load, pone justResetted en false para que 
+	 * pueda ejecutar el simulador
+	 */
+	public void reset(boolean load) throws NegativeArgExc, IOException {
+		justResetted = !load;
 		sim.reset();
-		emptySim = true;
+		if(justResetted) {
+			isThereFile = false;
+			emptySim = true;
+			initSim(1);
+		}
 	}
 }
