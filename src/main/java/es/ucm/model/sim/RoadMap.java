@@ -46,21 +46,27 @@ public class RoadMap {
 	
 	public Junction getJunction(String id) throws MissingObjectExc {
 		for(Junction j:junctions) {
-			if(id.equals(j.getId())) return j;
+			if(id.equals(j.getId())) {
+				return j;
+			}
 		}
 		throw new MissingObjectExc("Can't find a junction with id " + id);
 	}
 	
 	public Road getRoad(String id) throws MissingObjectExc {
 		for(Road r:roads) {
-			if(id.equals(r.getId())) return r;
+			if(id.equals(r.getId())) {
+				return r;
+			}
 		}
 		throw new MissingObjectExc("Can't find a road with id " + id);
 	}
 	
 	public Vehicle getVehicle(String id) throws MissingObjectExc {
 		for(Vehicle v:vehicles) {
-			if(id.equals(v.getId())) return v;
+			if(id.equals(v.getId())) {
+				return v;
+			}
 		}
 		throw new MissingObjectExc("Can't find a vehicle with id " + id);
 	}
@@ -72,8 +78,9 @@ public class RoadMap {
 			throws MissingObjectExc {
 		for(Road r: roads)
 			if(id2.equals(r.getFinalJ().getId()) 
-					&& id1.equals(r.getIniJ().getId()))
+					&& id1.equals(r.getIniJ().getId())) {
 				return r;
+			}
 		StringBuilder sb = new StringBuilder();
 		sb.append("Can't find the road between ")
 			.append(id1).append(" and ").append(id2);

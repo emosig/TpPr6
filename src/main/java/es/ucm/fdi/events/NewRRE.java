@@ -22,7 +22,9 @@ public class NewRRE extends NewJunctionE{
 	
 	public void ejecuta(Simulator s, ArrayList<Junction> js, 
 			ArrayList<Road> rs, ArrayList<Vehicle> vs) {
-		if(done) return;
+		if(done) {
+			return;
+		}
 		js.add(new RoundRobin(maxT, minT, id));
 		done = true;
 	}

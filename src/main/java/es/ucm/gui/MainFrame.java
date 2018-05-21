@@ -116,7 +116,8 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 * Configura los componentes scrollables
 	 */
 	private void scroll(JScrollPane sp) {
-		sp.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		sp.setVerticalScrollBarPolicy(
+				JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
 		sp.setHorizontalScrollBarPolicy(
 				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 	}
@@ -144,7 +145,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	private void loadEvQueue(List<Event> e) {
 		evQueueTable = new MyTable(e);
 		border("Events Queue", evQueueTable);
-		if(upperSplit1 != null)upperSplit1.setRightComponent(evQueueTable);
+		if(upperSplit1 != null) {
+			upperSplit1.setRightComponent(evQueueTable);
+		}
 	}
 	
 	private void initReportsArea() throws IOException {
@@ -523,10 +526,11 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				setSplitPaneSizes();
 			}
 		});
-		if(!ctrl.isFile())
+		if(!ctrl.isFile()) {
 			JOptionPane.showMessageDialog(
-				null, "Simulador 'vacío'\nCargue un archivo para comenzar",
-				"Popup amistoso", JOptionPane.INFORMATION_MESSAGE);
+					null, "Simulador 'vacío'\nCargue un archivo para comenzar",
+					"Popup amistoso", JOptionPane.INFORMATION_MESSAGE);
+		}		
 	}
 	
 	private void setSplitPaneSizes() {

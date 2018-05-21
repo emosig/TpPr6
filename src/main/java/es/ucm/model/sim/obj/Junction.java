@@ -53,7 +53,9 @@ public class Junction extends SimObj{
 		}
 		
 		public String vqueueToString() {
-			if(vqueue.isEmpty()) return "[]";
+			if(vqueue.isEmpty()) {
+				return "[]";
+			}
 			StringBuilder sb = new StringBuilder();
 			sb.append('[');
 			for(Vehicle v: vqueue) {
@@ -87,14 +89,18 @@ public class Junction extends SimObj{
 	
 	public List<Vehicle> getIncomingV(){
 		List<Vehicle> inc = new ArrayList<>();
-		for(RoadEnd r: incomingRoad.values())
-			for(Vehicle v: r.getQueue())
+		for(RoadEnd r: incomingRoad.values()) {
+			for(Vehicle v: r.getQueue()) {
 				inc.add(v);
+			}
+		}
 		return inc;
 	}
 	
 	public void entraVehiculo(Vehicle v) {
-		if(getIncomingV().contains(v)) return;
+		if(getIncomingV().contains(v)) {
+			return;
+		}
 		incomingRoad.get(v.getRoad()).arrive(v);
 	}
 	
@@ -135,8 +141,9 @@ public class Junction extends SimObj{
 				greenId = incomingRoad.lastKey();
 			}
 			//A partir de aquí greenId está siempre forzosamente definido
-			if(!incomingRoad.get(greenId).isEmpty())
+			if(!incomingRoad.get(greenId).isEmpty()) {
 				saleVehiculo(greenId).moverASiguienteCarretera();
+			}
 			//avanzar los semáforos
 			avanzaSem();
 		}
@@ -148,14 +155,17 @@ public class Junction extends SimObj{
 			StringBuilder sb = new StringBuilder();
 			for(String id : incomingRoad.keySet()) { 
 				String color;
-				if(id.equals(greenId)) color = "green"; //null-safe
+				if(id.equals(greenId)) {
+					color = "green"; //null-safe
+				}
 				else color  = "red";
 				//creo lista de cosas que van a ir separadas por coma para
 				//evitar concatenaciones y appends excesivos
 				String[] toAppend = {"(" + id, color, 
 						incomingRoad.get(id).vqueueToString() + ")"};
-				for(String s: toAppend)
+				for(String s: toAppend) {
 					sb.append(s).append(',');
+				}
 			}
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("queues", String.join(", ", sb));
@@ -175,8 +185,9 @@ public class Junction extends SimObj{
 	private void describeCommon(StringBuilder sb, String id, String color) {
 		sb.append(id).append(",").append(color).append(",[");
 		if(!incomingRoad.get(id).isEmpty()) {
-			for(Vehicle v: incomingRoad.get(id).getQueue())
+			for(Vehicle v: incomingRoad.get(id).getQueue()) {
 				sb.append(v.getId()).append(",");
+			}
 			sb.setLength(sb.length() - 1);//borra la última coma
 		}
 		sb.append("],");
@@ -195,8 +206,12 @@ public class Junction extends SimObj{
 			}
 			sbRe.setLength(sbRe.length() - 1);  //borra última coma
 			sbGr.setLength(sbGr.length() - 1);
-			if(sbRe.charAt(sbRe.length() - 1) != '[') sbRe.append(")");
-			if(sbGr.charAt(sbGr.length() - 1) != '[') sbGr.append(")");
+			if(sbRe.charAt(sbRe.length() - 1) != '[') {
+				sbRe.append(")");
+			}
+			if(sbGr.charAt(sbGr.length() - 1) != '[') {
+				sbGr.append(")");
+			}
 		}
 		sbRe.append("]");
 		sbGr.append("]");

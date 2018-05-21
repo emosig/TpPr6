@@ -42,7 +42,6 @@ public abstract class Event extends DescribableEntity{
 	}
 	
 	public void describe(Map<String, String> out) {
-		//out.put("#", ¿?)
 		out.put("Time", Integer.toString(time));
 		describeFurther(out);
 	}

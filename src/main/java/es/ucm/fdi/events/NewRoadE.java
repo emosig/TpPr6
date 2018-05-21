@@ -20,7 +20,9 @@ public class NewRoadE extends NewObjE{
 	
 	public static class NewRoadBuilder implements EventBuilder{
 		public Event parse(IniSection s){
-			if(!NAME.equals(s.getTag())) return null;
+			if(!NAME.equals(s.getTag())) {
+				return null;
+			}
 			int t = Integer.parseInt(s.getValue("time"));
 			String src = s.getValue("src");
 			String dest = s.getValue("dest");
@@ -28,8 +30,10 @@ public class NewRoadE extends NewObjE{
 			int le = Integer.parseInt(s.getValue("length"));
 			String id = s.getValue("id");
 			
-			if(s.getKeys().size() == 6) //carretera simple
+			if(s.getKeys().size() == 6) {
+				//carretera simple
 				return new NewRoadE(t, src, dest, max, le, id);
+			}
 			else if(s.getKeys().size() == 7) { 
 				//camino o autopista omitiendo el campo type
 				if(s.getKeys().contains("type")) {//camino
@@ -42,7 +46,9 @@ public class NewRoadE extends NewObjE{
 				}
 			}
 			else {//autopista
-				if(!s.getValue("type").equals("lanes")) return null;
+				if(!s.getValue("type").equals("lanes")) {
+					return null;
+				}
 				int lanes = Integer.parseInt(s.getValue("lanes"));
 				return new NewLaneE(lanes, t, src, dest, max, le, id);
 			}

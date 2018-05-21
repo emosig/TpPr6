@@ -13,7 +13,9 @@ public class Bike extends Vehicle{
 	}
 	
 	public void setTiempoAveria(int t) {
-		if(2*velActual > velMaxima) super.setTiempoAveria(t);
+		if(2*velActual > velMaxima) {
+			super.setTiempoAveria(t);
+		}
 	}
 	
 	protected void fillReportDetails(Map<String, String> out) {

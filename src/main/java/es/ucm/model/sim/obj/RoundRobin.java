@@ -66,14 +66,18 @@ public class RoundRobin extends Junction{
 	
 	public List<Vehicle> getIncomingV(){
 		List<Vehicle> inc = new ArrayList<>();
-		for(RoadEnd r: myIncomingRoad.values())
-			for(Vehicle v: r.getQueue())
+		for(RoadEnd r: myIncomingRoad.values()) {
+			for(Vehicle v: r.getQueue()) {
 				inc.add(v);
+			}
+		}
 		return inc;
 	}
 	
 	public void entraVehiculo(Vehicle v) {
-		if(getIncomingV().contains(v)) return;
+		if(getIncomingV().contains(v)) {
+			return;
+		}
 		myIncomingRoad.get(v.getRoad()).arrive(v);
 	}
 	
@@ -110,8 +114,9 @@ public class RoundRobin extends Junction{
 		if(!myIncomingRoad.isEmpty()) {
 			//caso inicial
 			if(greenId == null) {	
-				for(RRRoadEnd rrr: myIncomingRoad.values())
+				for(RRRoadEnd rrr: myIncomingRoad.values()) {
 					rrr.setIntervalo(maxTimeSlice);
+				}
 				myIncomingRoad.lastEntry().getValue().changeTrfLight();
 				myIncomingRoad.lastEntry().getValue().setIntervalo(
 						maxTimeSlice);
@@ -126,16 +131,18 @@ public class RoundRobin extends Junction{
 			//avanzar los semáforos si ha pasado el intervalo de tiempo
 			if(myIncomingRoad.get(greenId).getUTiempo() == 0) {
 				if(myIncomingRoad.get(greenId).getVehiclesPassed() 
-						== myIncomingRoad.get(greenId).getIntervalo()) 
+						== myIncomingRoad.get(greenId).getIntervalo()) {
 					//han pasado todos los vehiculos
 					myIncomingRoad.get(greenId).setIntervalo(Integer.min(
 							maxTimeSlice, myIncomingRoad.get(greenId)
 							.getIntervalo() + 1));
-				else if(myIncomingRoad.get(greenId).getVehiclesPassed() == 0)
+				}
+				else if(myIncomingRoad.get(greenId).getVehiclesPassed() == 0) {
 					 //no ha pasado ninguno
 					myIncomingRoad.get(greenId).setIntervalo(Integer.max(
 							minTimeSlice, myIncomingRoad.get(greenId)
 							.getIntervalo() - 1));
+				}
 				myIncomingRoad.get(greenId).resetUTiempo();
 				avanzaSem();
 			}
@@ -148,15 +155,18 @@ public class RoundRobin extends Junction{
 			StringBuilder sb = new StringBuilder();
 			for(String id : myIncomingRoad.keySet()) { 
 				String color;
-				if(id.equals(greenId)) color = "green:" + (
-						myIncomingRoad.get(id).getUTiempo() + 1); //null-safe
+				if(id.equals(greenId)) {
+					color = "green:" + 
+				(myIncomingRoad.get(id).getUTiempo() + 1);
+				}
 				else color  = "red";
 				//creo lista de cosas que van a ir separadas por coma para 
 				//evitar concatenaciones y appends excesivos
 				String[] toAppend = {"(" + id, color, myIncomingRoad.get(id)
 						.vqueueToString() + ")"};
-				for(String s: toAppend)
+				for(String s: toAppend) {
 					sb.append(s).append(',');
+				}
 			}
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("queues", String.join(", ", sb));

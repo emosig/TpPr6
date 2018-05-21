@@ -8,8 +8,11 @@ import java.util.Map;
 public class Dirt extends Road{
 	private int factorReducc(Vehicle v) {
 		int avs = 0;
-		for(Vehicle ve : vehiculos.innerValues())
-			if(ve.getTAveria() > 0) ++avs;
+		for(Vehicle ve : vehiculos.innerValues()) {
+			if(ve.getTAveria() > 0) {
+				++avs;
+			}
+		}
 		return avs + 1;
 	}
 	public Dirt(int vMax, int length, Junction iniJ, Junction finalJ, 

@@ -57,14 +57,18 @@ public class CrowdedJunction extends Junction {
 	
 	public List<Vehicle> getIncomingV(){
 		List<Vehicle> inc = new ArrayList<>();
-		for(RoadEnd r: myIncomingRoad.values())
-			for(Vehicle v: r.getQueue())
+		for(RoadEnd r: myIncomingRoad.values()) {
+			for(Vehicle v: r.getQueue()) {
 				inc.add(v);
+			}
+		}
 		return inc;
 	}
 	
 	public void entraVehiculo(Vehicle v) {
-		if(getIncomingV().contains(v)) return;
+		if(getIncomingV().contains(v)) {
+			return;
+		}
 		myIncomingRoad.get(v.getRoad()).arrive(v);
 	}
 	
@@ -112,12 +116,14 @@ public class CrowdedJunction extends Junction {
 				greenId = myIncomingRoad.lastKey();
 			}
 			//A partir de aquí greenId está siempre forzosamente definido
-			if(!myIncomingRoad.get(greenId).isEmpty())
+			if(!myIncomingRoad.get(greenId).isEmpty()) {
 				saleVehiculo(greenId).moverASiguienteCarretera();
+			}
 			//avanzar los semáforos si ha pasado el intervalo de tiempo
 			if(myIncomingRoad.get(greenId).getIntervalo() 
-					== myIncomingRoad.get(greenId).getUTiempo())
+					== myIncomingRoad.get(greenId).getUTiempo()) {
 				avanzaSem();
+			}
 			else myIncomingRoad.get(greenId).increaseT();
 		}
 	}
@@ -127,15 +133,17 @@ public class CrowdedJunction extends Junction {
 			StringBuilder sb = new StringBuilder();
 			for(String id : myIncomingRoad.keySet()) { 
 				String color;
-				if(id.equals(greenId)) color = "green:" 
-				+ myIncomingRoad.get(id).getUTiempo(); //null-safe
+				if(id.equals(greenId)) {
+					color = "green:" + myIncomingRoad.get(id).getUTiempo();
+				}
 				else color  = "red";
 				//creo lista de cosas que van a ir separadas por coma 
 				//para evitar concatenaciones y appends excesivos
 				String[] toAppend = {"(" + id, color, 
 						myIncomingRoad.get(id).vqueueToString() + ")"};
-				for(String s: toAppend)
+				for(String s: toAppend) {
 					sb.append(s).append(',');
+				}
 			}
 			sb.setLength(sb.length() - 1); //elimino la ultima coma
 			out.put("queues", String.join(", ", sb));

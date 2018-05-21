@@ -23,10 +23,13 @@ public class NewDirtE extends NewRoadE{
 	public void ejecuta(Simulator s, ArrayList<Junction> js,
 			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
 					throws MissingObjectExc {
-		if(done) return;
+		if(done) {
+			return;
+		}
 		if(s.getRoadMap().getJunction(iniJ) == null 
-				|| s.getRoadMap().getJunction(finalJ) == null)
+				|| s.getRoadMap().getJunction(finalJ) == null) {
 			throw new MissingObjectExc(this);
+		}
 		Junction iniJJ = s.getRoadMap().getJunction(iniJ),
 				finalJJ = s.getRoadMap().getJunction(finalJ);
 		Dirt myDirt = new Dirt(vMax, length, iniJJ, finalJJ, id);

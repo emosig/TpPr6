@@ -21,9 +21,13 @@ public class MyTable extends JPanel {
 		
 		private String[] fieldNames;
 		private List<? extends DescribableEntity> elements;
+		//pongo data como atributo para ahorrarme news
+		//cada vez que accedo a los datos
+		private Map<String, String> data; 
 		
 		public MyTableModel(List<? extends DescribableEntity> elements) {
 			super();
+			data = new HashMap<>();
 			this.elements = elements;
 			loadTable();
 		}
@@ -32,8 +36,6 @@ public class MyTable extends JPanel {
 		 */
 		private void loadTable() {
 			if(!elements.isEmpty()) {
-				Map<String, String> data = new HashMap<>();
-				//solo para sacar los nombres de las columnas
 				elements.get(0).describe(data); 
 				fieldNames = data.keySet().toArray(
 						new String[data.keySet().size()]);
@@ -57,7 +59,6 @@ public class MyTable extends JPanel {
 		
 		@Override
 		public String getValueAt(int rowIndex, int columnIndex) {
-			Map<String, String> data = new HashMap<>();
 			elements.get(rowIndex).describe(data);
 			return data.get(fieldNames[columnIndex]);
 		}

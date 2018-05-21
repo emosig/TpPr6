@@ -179,7 +179,9 @@ public class Simulator {
 		}
 		
 		//2 avanzar carreteras
-		for(Road r: m.getRoads()) r.avanza();
+		for(Road r: m.getRoads()) {
+			r.avanza();
+		}
 		
 		//3 avanzar cruces
 		for(Junction j: m.getJunctions()) {

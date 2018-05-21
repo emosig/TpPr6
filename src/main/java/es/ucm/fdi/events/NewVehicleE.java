@@ -22,15 +22,19 @@ public class NewVehicleE extends NewObjE{
 	
 	public static class NewVehicleBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
-			if(!NAME.equals(s.getTag())) return null;
+			if(!NAME.equals(s.getTag())) {
+				return null;
+			}
 			int t = Integer.parseInt(s.getValue("time"));
 			int max = Integer.parseInt(s.getValue("max_speed"));
 			String[] aux = s.getValue("itinerary").split(",");
 			ArrayList<String> it = new ArrayList<>(Arrays.asList(aux));
 			String id = s.getValue("id");
 			
-			if(s.getKeys().size() == 4) //es un vehiculo simple
+			if(s.getKeys().size() == 4) {
+				//es un vehiculo simple
 				return new NewVehicleE(t, max, it, id);
+			}	
 			else if(s.getKeys().size() == 5) { //es una bicicleta
 				if(!"bike".equals(s.getValue("type"))) return null;
 				return new NewBikeE(t, max, it, id);
@@ -50,7 +54,9 @@ public class NewVehicleE extends NewObjE{
 				
 			}
 			else{ //es un coche
-				if(!"car".equals(s.getValue("type"))) return null;
+				if(!"car".equals(s.getValue("type"))) {
+					return null;
+				}
 				int resist = Integer.parseInt(s.getValue("resistance"));
 				double prob = Double.parseDouble(
 						s.getValue("fault_probability"));

@@ -57,8 +57,9 @@ public class MyTextEditor extends JPanel{
 		int r = fc.showOpenDialog(null);
 		if (r == JFileChooser.APPROVE_OPTION) {
 			File file = fc.getSelectedFile();
-			if (!file.getName().endsWith(".ini"))
+			if (!file.getName().endsWith(".ini")) {
 				throw new SimulatorExc("Formato no soportado");
+			}
 			String s = readFile(file);
 			textArea.setText(s);
 			return file.getAbsolutePath();
@@ -72,8 +73,9 @@ public class MyTextEditor extends JPanel{
 	
 	public void save() throws FileNotFoundException {
 		int r = fc.showSaveDialog(null);
-		if(r == JFileChooser.APPROVE_OPTION)
+		if(r == JFileChooser.APPROVE_OPTION) {
 			writeOut();
+		}	
 	}
 	
 	public static String readFile(File file) {

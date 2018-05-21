@@ -59,8 +59,9 @@ public class RoadMapGraph extends JPanel{
 		for (Road r : rm.getRoads()) {
 			Edge e = new Edge(r.getId(), js.get(r.getIniJ()), 
 					js.get(r.getFinalJ()), r.getLong() );
-			for(Vehicle v: rm.getVehicles())
+			for(Vehicle v: rm.getVehicles()) {
 				e.addDot(new Dot(v.getId(), v.getLoc()));
+			}
 			g.addEdge(e);
 		}
 		_graphComp.setGraph(g);

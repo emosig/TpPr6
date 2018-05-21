@@ -17,11 +17,14 @@ public class NewJunctionE extends NewObjE {
 	
 	public static class NewJunctionBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
-			if(!NAME.equals(s.getTag())) return null;
+			if(!NAME.equals(s.getTag())) {
+				return null;
+			}
 			int t = Integer.parseInt(s.getValue("time"));
 			String id = s.getValue("id");
-			if(s.getKeys().size() == 2)
+			if(s.getKeys().size() == 2) {
 				return new NewJunctionE(t, id);
+			}
 			else if(s.getKeys().contains("type")) {
 				if(s.getKeys().size() == 5) { //rr
 					if(!s.getValue("type").equals("rr")) return null;
@@ -30,7 +33,9 @@ public class NewJunctionE extends NewObjE {
 					return new NewRRE(max, min, t, id);
 				}
 				else { //mc
-					if(!s.getValue("type").equals("mc")) return null;
+					if(!s.getValue("type").equals("mc")) {
+						return null;
+					}
 					else return new NewMCE(t, id);
 				}	
 			}
@@ -44,7 +49,9 @@ public class NewJunctionE extends NewObjE {
 	@Override
 	public void ejecuta(Simulator s, ArrayList<Junction> js, 
 			ArrayList<Road> rs, ArrayList<Vehicle> vs) {
-		if(done) return;
+		if(done) {
+			return;
+		}
 		js.add(new Junction(id));
 		done = true;
 	}

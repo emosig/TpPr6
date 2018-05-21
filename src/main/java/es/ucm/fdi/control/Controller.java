@@ -11,7 +11,6 @@ import es.ucm.fdi.exceptions.NegativeArgExc;
 import es.ucm.fdi.exceptions.SimulatorExc;
 import es.ucm.fdi.ini.Ini;
 import es.ucm.fdi.ini.IniSection;
-import es.ucm.fdi.launcher.Stepper;
 import es.ucm.model.sim.Simulator;
 
 /*
@@ -137,13 +136,8 @@ public class Controller {
 	/*
 	 * Inicia el simulador, lee los eventos y los ejecuta
 	 */
-	public void run(int t, boolean limit) {
-		try {
-			initSim(t);
-		} catch (NegativeArgExc e) {
-		} catch (IOException e) {
-			System.out.println("Error en la lectura de eventos");
-		}
+	public void run(int t, boolean limit) throws NegativeArgExc, IOException {
+		initSim(t);
 	}
 	
 	private void initSim(int t) throws NegativeArgExc, IOException {

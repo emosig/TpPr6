@@ -22,7 +22,9 @@ public class MakeVehicleFaultyE extends Event{
 	
 	public static class MakeVehicleFaultyBuilder implements EventBuilder{
 		public Event parse(IniSection s) {
-			if(!NAME.equals(s.getTag())) return null;
+			if(!NAME.equals(s.getTag())) {
+				return null;
+			}
 			int arg1 = Integer.parseInt(s.getValue("time"));
 			int arg2 = Integer.parseInt(s.getValue("duration"));
 			String[] aux = s.getValue("vehicles").split(",");
@@ -42,7 +44,9 @@ public class MakeVehicleFaultyE extends Event{
 	public void ejecuta(Simulator s, ArrayList<Junction> js, 
 			ArrayList<Road> rs, ArrayList<Vehicle> vs) 
 					throws MissingObjectExc {
-		if(done) return;
+		if(done) {
+			return;
+		}
 		for(String idf: vehicles) {
 			if(s.getRoadMap().getVehicle(idf) == null)
 				throw new MissingObjectExc("vehicle");
@@ -54,8 +58,9 @@ public class MakeVehicleFaultyE extends Event{
 	@Override
 	protected void describeFurther(Map<String, String> out) {
 		StringBuilder sb = new StringBuilder("Break Vehicles [");
-		for(String v: vehicles)
+		for(String v: vehicles) {
 			sb.append(v).append(",");
+		}
 		sb.setLength(sb.length() - 1);
 		sb.append("]");
 		out.put("Type", sb.toString());

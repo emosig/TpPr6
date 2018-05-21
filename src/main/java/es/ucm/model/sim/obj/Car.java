@@ -34,9 +34,11 @@ public class Car extends Vehicle{
 			--tAveria;
 			return;
 		}
-		if(kmSinceFault() >= resistKm) 
-			if(n.nextDouble() < faultProb)
+		if(kmSinceFault() >= resistKm) {
+			if(n.nextDouble() < faultProb) {
 				tAveria = n.nextInt(maxFault) + 1;
+			}
+		}		
 		super.avanza(queue);
 	}
 	protected void fillReportDetails(Map<String, String> out) {

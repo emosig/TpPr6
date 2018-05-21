@@ -208,6 +208,8 @@ public class ExampleMain {
 			c.run(_timeLimit, true);
 		} catch (FileNotFoundException f) {
 			System.out.println("El sistema no puede encontrar la ruta especificada");
+		} catch (NegativeArgExc e) {
+			System.out.println("Argumento inválido para la creación del simulador");
 		}
 	}
 

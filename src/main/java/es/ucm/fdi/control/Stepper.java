@@ -1,5 +1,9 @@
-package es.ucm.fdi.launcher;
+package es.ucm.fdi.control;
 
+/*
+ * Clase genérica que uso para ejecutar las "vueltas" del 
+ * simulador de una en una
+ */
 public class Stepper {
 	private Runnable before;
 	private Runnable during;
@@ -21,11 +25,7 @@ public class Stepper {
 				while(!forceStop && currentSteps < steps) {
 					during.run();
 					Thread.sleep(delay);
-					++currentSteps;
-					
-					//debug
-					System.out.println(currentSteps);
-					
+					++currentSteps;					
 				}
 			} catch (InterruptedException e) {
 				// TODO Auto-generated catch block

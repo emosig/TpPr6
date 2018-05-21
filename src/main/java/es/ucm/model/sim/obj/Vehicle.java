@@ -19,8 +19,9 @@ public class Vehicle extends SimObj{
 
 		@Override
 		public int compare(Vehicle o1, Vehicle o2) {
-			if(o1.getLoc() == o2.getLoc())
+			if(o1.getLoc() == o2.getLoc()) {
 				return o1.getId().compareToIgnoreCase(o2.getId());
+			}
 			else return o2.getLoc() - o1.getLoc();
 		}
 	} 
@@ -34,8 +35,9 @@ public class Vehicle extends SimObj{
 	protected int tAveria;
 	protected int kilometrage() {
 		int k = 0;
-		for(int i = 0; i < posItinerario; ++i) 
+		for(int i = 0; i < posItinerario; ++i) {
 			k+= itinerario.get(i).getLong();
+		}
 		k += localizacion;
 		return k;
 	}
@@ -74,12 +76,18 @@ public class Vehicle extends SimObj{
 		return tAveria;
 	}
 	public void setTiempoAveria(int t){
-		if(tAveria < 1) velActual = 0; //Si no estaba parado lo para
+		if(tAveria < 1) {
+			velActual = 0; //Si no estaba parado lo para
+		}
 		tAveria += t;
 	}
 	public void setVelocidadActual(int v) {
-		if(tAveria > 0) velActual = 0;
-		else if(v < velMaxima) velActual = v;
+		if(tAveria > 0) {
+			velActual = 0;
+		}
+		else if(v < velMaxima) {
+			velActual = v;
+		}
 		else velActual = velMaxima;
 	}
 	/*
@@ -121,7 +129,9 @@ public class Vehicle extends SimObj{
 	}
 	@Override
 	protected void fillReportDetails(Map<String, String> out) {
-		if(haLlegado) out.put("location", "arrived");
+		if(haLlegado) {
+			out.put("location", "arrived");
+		}
 		else out.put("location", new StringBuilder().append('(')
 				.append(itinerario.get(posItinerario).getId()).append(',')
 				.append(localizacion).append(')').toString());
@@ -146,8 +156,9 @@ public class Vehicle extends SimObj{
 		StringBuilder sb = new StringBuilder("[");
 		if(!itinerario.isEmpty()) {
 		sb.append(itinerario.get(0).getIniJ().getId());
-			for(Road r: itinerario)
+			for(Road r: itinerario) {
 				sb.append(r.getFinalJ().getId()).append(",");
+			}
 			sb.setLength(sb.length() - 1);
 		}
 		sb.append("]");
