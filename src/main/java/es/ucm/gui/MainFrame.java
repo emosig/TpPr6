@@ -47,7 +47,7 @@ import es.ucm.model.sim.Simulator.UpdateEvent;
 public class MainFrame extends JFrame implements SimulatorListener{
 	
 	private Controller ctrl;
-
+	private boolean loaded;
 	private MyTextEditor evEditor;
 	private JScrollPane reportsArea; 
 	private RoadMapGraph map;
@@ -76,8 +76,9 @@ public class MainFrame extends JFrame implements SimulatorListener{
 			throws SimulatorExc, NegativeArgExc, IOException {
 		super("Traffic Simulator");
 		this.ctrl = ctrl;
+		loaded = ctrl.isFile();
 		//para cuando no se propociona archivo no arranca el roadmap
-		ctrl.run(1, ctrl.isFile());
+		ctrl.run(1, loaded);
 		ctrl.getSim().addSimulatorListener(this);
 		initGUI();
 	}
@@ -206,12 +207,14 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 */
 	
 	private void resetAll() {
-		reportTa.setText("");
-		evEditor.clear();
-		map = new RoadMapGraph();
-		bottomSplit.setRightComponent(map);
-		setSplitPaneSizes();
-		resetTables();
+		SwingUtilities.invokeLater(()->{
+			reportTa.setText("");
+			evEditor.clear();
+			map = new RoadMapGraph();
+			bottomSplit.setRightComponent(map);
+			setSplitPaneSizes();
+			resetTables();
+		});
 	}
 	
 	/*
@@ -219,18 +222,20 @@ public class MainFrame extends JFrame implements SimulatorListener{
 	 */
 	
 	private void resetTables() {
-		evQueueTable = new MyTable();
-		border("Events Queue", evQueueTable);
-		vehiclesTable = new MyTable();
-		border("Vehicles", vehiclesTable);
-		roadsTable = new MyTable();
-		border("Roads", roadsTable);
-		junctionsTable = new MyTable();
-		border("Junctions", junctionsTable);
-		upperSplit1.setRightComponent(evQueueTable);
-		tableSplit1.setTopComponent(vehiclesTable);
-		tableSplit1.setBottomComponent(roadsTable);
-		tableSplit2.setBottomComponent(junctionsTable);
+		SwingUtilities.invokeLater(()->{
+			evQueueTable = new MyTable();
+			border("Events Queue", evQueueTable);
+			vehiclesTable = new MyTable();
+			border("Vehicles", vehiclesTable);
+			roadsTable = new MyTable();
+			border("Roads", roadsTable);
+			junctionsTable = new MyTable();
+			border("Junctions", junctionsTable);
+			upperSplit1.setRightComponent(evQueueTable);
+			tableSplit1.setTopComponent(vehiclesTable);
+			tableSplit1.setBottomComponent(roadsTable);
+			tableSplit2.setBottomComponent(junctionsTable);
+		});
 	}
 	
 	/*
@@ -291,12 +296,35 @@ public class MainFrame extends JFrame implements SimulatorListener{
 				()-> {
 					try {
 						ctrl.reset(false);
-					} catch (NegativeArgExc | IOException e) {
+						ctrl.getSim().addSimulatorListener(this);
+						loaded = false;
+					} catch (NegativeArgExc | SimulatorExc | IOException e) {
 						showFriendlyExc("Error al recuperar el simulador");
 					}
 					for(SimulatorAction a: new SimulatorAction[] {
 							save, clearE, saveRe, clearR}) {
 						a.setEnabled(false);
+					}
+				});
+		SimulatorAction load = new SimulatorAction(
+				"Load Events", "open.png", "Load events from file",
+				KeyEvent.VK_L, "control L", 
+				()-> {
+					String path;
+					try {
+						ctrl.reset(true);
+						path = evEditor.load();
+						loaded = true;
+						if(ctrl.isEmpty()) {
+							ctrl.readEvs(path);  
+						}
+						loadUpperComponents();
+						save.setEnabled(true);
+						clearE.setEnabled(true);
+					} catch (SimulatorExc e1) {
+						showFriendlyExc(e1.getMessage());
+					} catch (IOException | NegativeArgExc e) {
+						showFriendlyExc("Error al abrir el fichero");
 					}
 				});
 		SimulatorAction stop = new SimulatorAction(
@@ -319,6 +347,11 @@ public class MainFrame extends JFrame implements SimulatorListener{
 								"Seleccione un valor de retardo entre 1 y 9999");
 						return;
 					}
+					if(!loaded) {
+						showFriendlyExc(
+								"Cargue un archivo de eventos");
+						return;
+					}
 					SimulatorAction[] lista = {
 						save, clearE, saveRe, reset, clearR};
 					try {
@@ -338,31 +371,7 @@ public class MainFrame extends JFrame implements SimulatorListener{
 						showFriendlyExc(
 								"Cargue un archivo de eventos");
 					}
-					
 				});
-		SimulatorAction load = new SimulatorAction(
-				"Load Events", "open.png", "Load events from file",
-				KeyEvent.VK_L, "control L", 
-				()-> {
-					String path;
-					try {
-						ctrl.reset(true);
-						path = evEditor.load();
-						if(ctrl.isEmpty()) {
-							ctrl.readEvs(path);  
-						}
-						loadUpperComponents();
-						save.setEnabled(true);
-						clearE.setEnabled(true);
-						run.setEnabled(true);
-					} catch (SimulatorExc e1) {
-						showFriendlyExc(e1.getMessage());
-					} catch (IOException | NegativeArgExc e) {
-						showFriendlyExc("Error al abrir el fichero");
-					}
-				});
-		
-
 		// inicializo los cuadros de time, steps y delay
 		delay = new JSpinner();
 		delay.setPreferredSize(new Dimension(50, 5));
@@ -406,7 +415,6 @@ public class MainFrame extends JFrame implements SimulatorListener{
 			//estos están a true si se carga un archivo
 			save.setEnabled(false);
 			clearE.setEnabled(false);
-			run.setEnabled(false);
 		}
 		
 		// add actions to menubar, and bar to window
